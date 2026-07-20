@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>TYPESTRACT — generative visual poetry</title>
+<style>
+  :root {
+    --paper: #F6F1E5;
+    --ink: #161412;
+    --ground: #E7E1D2;
+    --hairline: rgba(22, 20, 18, 0.25);
+    --faint: rgba(22, 20, 18, 0.55);
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { height: 100%; }
+  body {
+    font-family: 'Baskerville', 'Georgia', serif;
+    background: var(--ground);
+    color: var(--ink);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+  #app { flex: 1; display: flex; min-height: 0; }
+
+  /* ——— left rail ——— */
+  #rail {
+    width: 264px;
+    flex: none;
+    background: var(--paper);
+    border-right: 1px solid var(--hairline);
+    padding: 28px 22px;
+    overflow-y: auto;
+    font-size: 13.5px;
+    line-height: 1.5;
+  }
+  #rail h1 {
+    font-size: 17px;
+    font-weight: normal;
+    letter-spacing: 0.32em;
+    margin-bottom: 2px;
+  }
+  #rail .tagline {
+    font-style: italic;
+    color: var(--faint);
+    font-size: 12.5px;
+    margin-bottom: 26px;
+  }
+  #rail section { margin-bottom: 22px; }
+  #rail .label {
+    font-variant: all-small-caps;
+    letter-spacing: 0.14em;
+    font-size: 13px;
+    color: var(--faint);
+    border-bottom: 1px solid var(--hairline);
+    padding-bottom: 3px;
+    margin-bottom: 8px;
+    display: flex;
+    justify-content: space-between;
+  }
+  .engine-item {
+    display: block;
+    width: 100%;
+    text-align: left;
+    background: none;
+    border: none;
+    font: inherit;
+    color: inherit;
+    cursor: pointer;
+    padding: 2.5px 0 2.5px 16px;
+    position: relative;
+  }
+  .engine-item:hover { font-style: italic; }
+  .engine-item.active::before {
+    content: '■';
+    position: absolute;
+    left: 0;
+    font-size: 8px;
+    top: 7px;
+  }
+  .engine-item .lineage {
+    display: none;
+    font-size: 11px;
+    font-style: italic;
+    color: var(--faint);
+    line-height: 1.35;
+    padding-top: 1px;
+  }
+  .engine-item:hover .lineage { display: block; }
+
+  .radio-row { display: block; cursor: pointer; padding: 2px 0; }
+  .radio-row input { margin-right: 7px; accent-color: var(--ink); }
+
+  textarea#user-text {
+    width: 100%;
+    height: 90px;
+    margin-top: 6px;
+    font-family: inherit;
+    font-size: 13px;
+    background: rgba(255, 255, 255, 0.5);
+    border: 1px solid var(--hairline);
+    padding: 6px;
+    resize: vertical;
+    display: none;
+  }
+  textarea#user-text.open { display: block; }
+
+  /* the oracle's wire chatter — only speaks when a provider is set */
+  #oracle-status {
+    display: none;
+    margin-top: 5px;
+    font-size: 11px;
+    font-style: italic;
+    opacity: 0.6;
+  }
+  #oracle-status.on { display: block; }
+
+  #seed-input {
+    font-family: 'Courier New', monospace;
+    font-size: 13px;
+    width: 110px;
+    background: none;
+    border: none;
+    border-bottom: 1px solid var(--hairline);
+    padding: 2px 0;
+    color: inherit;
+  }
+  .text-btn {
+    background: none;
+    border: none;
+    font: inherit;
+    font-size: 13px;
+    cursor: pointer;
+    color: inherit;
+    text-decoration: underline;
+    text-underline-offset: 3px;
+    text-decoration-color: var(--hairline);
+    padding: 1px 0;
+  }
+  .text-btn:hover { text-decoration-color: var(--ink); }
+
+  input[type="range"] {
+    width: 100%;
+    accent-color: var(--ink);
+    height: 18px;
+  }
+  select {
+    font: inherit;
+    font-size: 13px;
+    background: none;
+    border: none;
+    border-bottom: 1px solid var(--hairline);
+    color: inherit;
+    padding: 1px 0;
+  }
+  .export-row { display: flex; flex-wrap: wrap; gap: 4px 14px; }
+
+  #keys { font-size: 11.5px; color: var(--faint); line-height: 1.7; }
+  #keys kbd {
+    font-family: 'Courier New', monospace;
+    font-size: 11px;
+    border: 1px solid var(--hairline);
+    padding: 0 4px;
+    border-radius: 2px;
+  }
+
+  /* ——— stage ——— */
+  #stage {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-width: 0;
+    overflow: hidden;
+    padding: 26px 30px 8px;
+  }
+  #sheet-holder {
+    flex: 1;
+    min-height: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+  }
+  #sheet-holder svg {
+    max-width: 100%;
+    max-height: 100%;
+    box-shadow: 0 1px 2px rgba(22, 20, 18, 0.18), 0 10px 34px rgba(22, 20, 18, 0.22);
+  }
+  #gallery {
+    flex: none;
+    display: flex;
+    gap: 8px;
+    padding: 14px 0 6px;
+    max-width: 100%;
+    overflow-x: auto;
+    min-height: 0;
+  }
+  #gallery img {
+    height: 64px;
+    display: block;
+    cursor: pointer;
+    box-shadow: 0 1px 4px rgba(22, 20, 18, 0.25);
+    opacity: 0.82;
+  }
+  #gallery img:hover, #gallery img.current { opacity: 1; outline: 1px solid var(--faint); }
+
+  /* ——— colophon bar ——— */
+  #colophon {
+    flex: none;
+    border-top: 1px solid var(--hairline);
+    background: var(--paper);
+    text-align: center;
+    padding: 9px 20px;
+    font-size: 12.5px;
+    font-style: italic;
+    color: var(--ink);
+    white-space: nowrap;
+    overflow-x: auto;
+  }
+
+  /* ——— mobile chrome: hidden on desktop, revealed below ——— */
+  #mobead, #touchbar, #rotate-hint { display: none; }
+
+  /*
+   * Phones and narrow windows. The side rail can't sit beside a poster;
+   * below this width the page becomes a single scroll — poem first (it is
+   * the hero), then the same controls as a settings area beneath it. The
+   * keyboard shortcuts don't exist on touch, so a thumb bar stands in.
+   */
+  @media (max-width: 760px) {
+    /* abandon the fixed-height flex shell: on a phone this is a normal
+     * scrolling document, so the footer sits at the true bottom and the
+     * page can't be pinned to one viewport height */
+    html, body { height: auto; min-height: 100%; }
+    body { display: block; overflow: visible; -webkit-text-size-adjust: 100%; }
+    #app { flex-direction: column; min-height: 0; }
+
+    /* the wordmark, kept at the top where the rail's title used to live */
+    #mobead {
+      display: flex; align-items: baseline; gap: 11px;
+      order: 0;
+      background: var(--paper);
+      border-bottom: 1px solid var(--hairline);
+      padding: 13px 16px;
+      position: sticky; top: 0; z-index: 5;
+    }
+    #mobead .wm { font-size: 15px; letter-spacing: 0.3em; }
+    #mobead .wm-sub { font-style: italic; color: var(--faint); font-size: 11.5px; }
+
+    /* the poem leads */
+    #stage { order: 1; padding: 14px 12px 4px; overflow: visible; }
+    #sheet-holder { flex: none; min-height: 0; width: 100%; }
+    #sheet-holder svg { width: 100%; height: auto; max-height: 78vh; }
+
+    /* thumb bar: what R and ← → do on a desktop keyboard */
+    #touchbar { display: flex; gap: 8px; width: 100%; margin-top: 12px; justify-content: center; }
+    #touchbar button {
+      font: inherit; font-size: 14px;
+      background: var(--paper); color: var(--ink);
+      border: 1px solid var(--hairline); border-radius: 2px;
+      padding: 12px 8px; cursor: pointer; -webkit-appearance: none;
+    }
+    #touchbar button:active { background: var(--ground); }
+    #touchbar .reroll { flex: 1; max-width: 220px; }
+    #touchbar .nav { flex: 0 0 56px; font-size: 15px; }
+    #touchbar button:disabled { opacity: 0.35; }
+
+    /* a landscape spread on a portrait phone — say so, once, dismissibly */
+    #rotate-hint {
+      display: flex; align-items: center; justify-content: center; gap: 4px;
+      width: 100%; margin-top: 10px; padding: 9px 12px;
+      font-size: 12.5px; font-style: italic; color: var(--faint);
+      border: 1px solid var(--hairline); background: var(--paper); text-align: center;
+    }
+    #rotate-hint[hidden] { display: none; }
+    #rotate-hint button {
+      font: inherit; font-size: 12px; font-style: normal;
+      background: none; border: none; color: var(--ink);
+      text-decoration: underline; text-underline-offset: 2px; cursor: pointer;
+    }
+
+    #gallery { padding: 12px 0 4px; }
+
+    /* the rail, restyled as the settings area below the poem */
+    #rail {
+      order: 2; width: 100%;
+      border-right: none; border-top: 1px solid var(--hairline);
+      padding: 22px 16px 34px; overflow-y: visible; font-size: 15px;
+    }
+    #rail h1, #rail .tagline { display: none; }  /* the wordmark is in #mobead now */
+    #keys { display: none; }                     /* no keyboard to shortcut */
+
+    /* the twenty-five engines as a tappable chip cloud, all visible */
+    #engine-list { display: flex; flex-wrap: wrap; gap: 6px; }
+    .engine-item {
+      width: auto; padding: 8px 12px; line-height: 1.1;
+      border: 1px solid var(--hairline); border-radius: 2px;
+    }
+    .engine-item::before { display: none !important; }
+    .engine-item.active { background: var(--ink); color: var(--paper); }
+    .engine-item:hover { font-style: normal; }
+    .engine-item .lineage { display: none !important; }  /* no hover on touch */
+
+    /* room for thumbs; 16px inputs stop iOS from zooming on focus */
+    .radio-row { padding: 7px 0; }
+    .text-btn { padding: 7px 0; font-size: 15px; }
+    #seed-input, select, textarea#user-text { font-size: 16px; }
+    #seed-input { width: 60%; }
+    .export-row { gap: 12px 18px; }
+
+    #colophon { white-space: normal; overflow: visible; overflow-wrap: anywhere; line-height: 1.5; }
+  }
+</style>
+</head>
+<body>
+  <div id="app">
+    <header id="mobead">
+      <span class="wm">TYPESTRACT</span>
+      <span class="wm-sub">generative visual poetry</span>
+    </header>
+    <aside id="rail">
+      <h1>TYPESTRACT</h1>
+      <p class="tagline">generative visual poetry</p>
+
+      <section>
+        <div class="label"><span>Engine</span></div>
+        <div id="engine-list"></div>
+      </section>
+
+      <section>
+        <div class="label"><span>Text</span></div>
+        <label class="radio-row"><input type="radio" name="source" value="corpus" checked>corpus</label>
+        <label class="radio-row"><input type="radio" name="source" value="procedural">procedural</label>
+        <label class="radio-row"><input type="radio" name="source" value="user">your own words</label>
+        <textarea id="user-text" placeholder="Paste a sentence; the engines will pass it through their workshops."></textarea>
+        <div id="oracle-status"></div>
+      </section>
+
+      <section>
+        <div class="label"><span>Seed</span></div>
+        <input id="seed-input" spellcheck="false" maxlength="16">
+        <button class="text-btn" id="reroll-btn">re-roll</button>
+      </section>
+
+      <section>
+        <div class="label"><span>Entropy</span><span id="entropy-val">0.50</span></div>
+        <input type="range" id="entropy" min="0" max="100" value="50">
+      </section>
+
+      <section>
+        <div class="label"><span>Paper</span></div>
+        <select id="paper-mode">
+          <option value="auto">chance</option>
+          <option value="warm">warm</option>
+          <option value="cool">cool</option>
+        </select>
+      </section>
+
+      <section>
+        <div class="label"><span>Type</span></div>
+        <select id="type-pairing">
+          <option value="chance">chance</option>
+        </select>
+      </section>
+
+      <section>
+        <div class="label"><span>Export</span></div>
+        <div class="export-row">
+          <button class="text-btn" id="export-svg">SVG</button>
+          <button class="text-btn" id="export-png2">PNG 2×</button>
+          <button class="text-btn" id="export-png4">PNG 4×</button>
+          <button class="text-btn" id="export-flat" style="display:none">SVG, flattened</button>
+        </div>
+      </section>
+
+      <section id="keys">
+        <div class="label"><span>Keys</span></div>
+        <kbd>R</kbd> re-roll &nbsp; <kbd>E</kbd> cycle engine<br>
+        <kbd>S</kbd> export SVG &nbsp; <kbd>←</kbd><kbd>→</kbd> history
+      </section>
+    </aside>
+
+    <main id="stage">
+      <div id="sheet-holder"></div>
+      <div id="rotate-hint" hidden>
+        <span>A landscape spread — turn your phone for the full sheet.</span>
+        <button type="button" id="rotate-hint-dismiss">dismiss</button>
+      </div>
+      <div id="touchbar">
+        <button type="button" class="nav" id="hist-prev" aria-label="previous poem">◀</button>
+        <button type="button" class="reroll" id="touch-reroll">re-roll</button>
+        <button type="button" class="nav" id="hist-next" aria-label="next poem">▶</button>
+      </div>
+      <div id="gallery"></div>
+    </main>
+  </div>
+  <footer id="colophon"></footer>
+
+  <script type="module" src="src/main.js"></script>
+</body>
+</html>
