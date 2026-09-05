@@ -22,8 +22,9 @@ python -m http.server        # or: npx serve, or any static server
 # open http://localhost:8000
 ```
 
-Opening `index.html` directly also works in browsers that permit ES
-modules from `file://` (most easily via a local server as above).
+A local server is required: the page loads its code as ES modules, which
+Chrome, Edge and Safari refuse over `file://`. Opening `index.html` straight
+from disk shows the rail with an empty engine list and a notice saying so.
 
 **Keys**: `R` re-roll · `E` cycle engine · `S` export SVG · `←`/`→` walk
 session history. The seed lives in the URL hash; `?engine=diagram` forces

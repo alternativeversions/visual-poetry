@@ -423,6 +423,7 @@ function upgradeParses() {
  * Boot.
  * ------------------------------------------------------------------ */
 
+document.getElementById('no-module')?.remove(); // we ran; drop the file:// notice
 readURL();
 wire();
 const sourceRadio = document.querySelector(`input[name="source"][value="${state.source}"]`);
