@@ -15,7 +15,7 @@
  */
 
 import { el, g, textEl, smoothPath, textOnPath, inkStroke, r2 } from '../svg.js';
-import { FONTS } from '../typography.js';
+import { measure, FONTS } from '../typography.js';
 
 /* Split into phrase-sized pieces; always returns at least one piece. */
 function phrasesOf(text, want) {
@@ -56,18 +56,25 @@ export default {
       caption = 'after Apollinaire, “Il Pleut” (1916)';
       const threads = 5;
       const phrases = phrasesOf(frag.text, threads);
-      const amp = 8 + entropy * 42;
-      const lean = 30 + entropy * 90; // rain falls aslant, as in SIC
+      /* five lanes: the sway is capped to a third of a lane and every
+       * thread leans nearly alike, so adjacent threads never cross */
+      const lane = (box.w * 0.92) / threads;
+      const amp = Math.min(8 + entropy * 42, lane * 0.32);
+      const lastX0 = box.x + ((threads - 0.4) / threads) * box.w * 0.92;
+      const lean = Math.min(30 + entropy * 90, box.x + box.w - lastX0 - 14); // aslant, as in SIC
       const accentAt = palette.accent ? rng.int(0, threads - 1) : -1;
+      let pool = phrases.slice();
       for (let i = 0; i < threads; i++) {
         const x0 = box.x + ((i + 0.6) / threads) * box.w * 0.92 + rng.range(-14, 14);
-        const len = box.h * rng.range(0.62, 0.98);
+        const len = box.h * rng.range(0.86, 0.98); // the height of the page
+        const leanK = rng.range(0.85, 1);
+        const freq = rng.range(1.5, 3);
         const pts = [];
         const n = 7;
         for (let k = 0; k <= n; k++) {
           const t = k / n;
           pts.push([
-            x0 + t * lean * rng.range(0.6, 1) + Math.sin(t * Math.PI * rng.range(1.5, 3)) * amp,
+            x0 + t * lean * leanK + Math.sin(t * Math.PI * freq) * amp,
             box.y + 6 + t * len,
           ]);
         }
@@ -78,16 +85,20 @@ export default {
           nodes.push(inkStroke(pts, widths, i === accentAt ? palette.accent : ink));
           continue;
         }
-        const phrase = phrases[i % phrases.length];
+        /* each thread carries text the length of its fall: phrases are
+         * strung together, a second fragment pulled when the first runs
+         * dry, until the measured run reaches most of the thread */
         const size = rng.range(11.5, 14.5);
+        const tracking = size * rng.range(0.06, 0.22);
+        const tOpts = { size, family: FONTS.serif, style: 'italic', tracking };
+        let phrase = pool.length ? pool.shift() : phrases[i % phrases.length];
+        for (let guard = 0; measure(phrase, tOpts) < len * 0.85 && guard < 40; guard++) {
+          if (!pool.length) pool = phrasesOf(source.fragment(rng, { minWords: 8, maxWords: 24 }).text, threads);
+          if (!pool.length) break;
+          phrase += ' ' + pool.shift();
+        }
         nodes.push(textOnPath(phrase, d, defs, {
-          size, family: FONTS.serif, style: 'italic',
-          fill: i === accentAt ? palette.accent : ink,
-          tracking: size * rng.range(0.06, 0.22),
-          /* a short phrase is a small fraction of a full-height thread;
-           * scatter where along the fall it catches the light, or every
-           * thread reads stranded at the top */
-          startOffset: `${rng.int(0, 55)}%`,
+          ...tOpts, fill: i === accentAt ? palette.accent : ink, startOffset: '0%',
         }));
         /* droplet letters shaken loose below the thread's end */
         if (entropy > 0.55 && rng.chance(entropy)) {
