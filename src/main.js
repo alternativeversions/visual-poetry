@@ -30,6 +30,10 @@ const state = {
   hybrid: false, // forced hybrid via ?hybrid=1
 };
 
+/* the pasted text rides in the hash — never the query, so it never
+ * reaches a server log — cut here: about a page of verse, a URL near 6 KB */
+const TEXT_CAP = 4000;
+
 function readURL() {
   const q = new URLSearchParams(location.search);
   const h = new URLSearchParams(location.hash.replace(/^#/, ''));
@@ -43,6 +47,15 @@ function readURL() {
     if (TYPE_PAIRINGS.some((p) => p.id === id)) state.typeId = id;
   }
   state.hybrid = q.get('hybrid') === '1' || h.get('hybrid') === '1';
+  const e = parseFloat(h.get('e'));
+  if (Number.isFinite(e)) state.entropy = Math.max(0, Math.min(1, e));
+  const paper = h.get('paper');
+  if (paper === 'warm' || paper === 'cool') state.paperMode = paper;
+  const text = h.get('text');
+  if (text && text.trim()) {
+    state.userText = text.slice(0, TEXT_CAP);
+    if (!h.get('source')) state.source = 'user'; // a link with text means text
+  }
   // ?ai=ollama | anthropic | off — persist the parsing provider
   const ai = q.get('ai');
   if (ai) {
@@ -68,6 +81,12 @@ function writeURL() {
   if (state.source !== 'corpus') h.set('source', state.source);
   if (state.typeId !== 'chance') h.set('type', state.typeId);
   if (state.hybrid) h.set('hybrid', '1');
+  if (Math.abs(state.entropy - 0.5) > 0.004) h.set('e', state.entropy.toFixed(2));
+  if (state.paperMode !== 'auto') h.set('paper', state.paperMode);
+  if (state.source === 'user') {
+    const t = state.userText.replace(/\s+/g, ' ').trim().slice(0, TEXT_CAP);
+    if (t) h.set('text', t);
+  }
   history.replaceState(null, '', '#' + h.toString());
 }
 
@@ -436,6 +455,13 @@ readURL();
 wire();
 const sourceRadio = document.querySelector(`input[name="source"][value="${state.source}"]`);
 if (sourceRadio) sourceRadio.checked = true;
-document.getElementById('user-text').classList.toggle('open', state.source === 'user');
+/* the controls take the link's state, so what the sheet shows is what
+ * the rail says */
+const drawer0 = document.getElementById('user-text');
+drawer0.value = state.userText;
+drawer0.classList.toggle('open', state.source === 'user');
+document.getElementById('entropy').value = Math.round(state.entropy * 100);
+document.getElementById('entropy-val').textContent = state.entropy.toFixed(2);
+document.getElementById('paper-mode').value = state.paperMode;
 show({ seed: state.seed || randomSeed(), engineId: state.engine });
 if (state.source === 'user') upgradeParses();

@@ -28,8 +28,11 @@ from disk shows the rail with an empty engine list and a notice saying so.
 
 **Keys**: `R` re-roll · `E` cycle engine · `S` export SVG · `←`/`→` walk
 session history. The seed lives in the URL hash; `?engine=diagram` forces
-an engine, `?hybrid=1` forces crossbreed mode. The entropy slider governs
-how far an engine strays from its classic form.
+an engine, `?hybrid=1` forces crossbreed mode. The hash also carries the
+entropy (`e`), the paper (`paper`) and, for your own words, the text
+itself (`text`, up to 4,000 characters), so a link reproduces the sheet
+exactly. The entropy slider governs how far an engine strays from its
+classic form.
 
 Deployment: the included GitHub Pages workflow
 (`.github/workflows/pages.yml`) publishes the repository root on every
