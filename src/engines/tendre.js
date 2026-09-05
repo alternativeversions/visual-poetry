@@ -40,8 +40,19 @@ export default {
     const { box, entropy, palette } = sheet;
     const ink = palette.ink;
     const frag = source.sentence(rng, 10);
-    const phrases = phrasesOf(frag.text, 9);
+    const own = phrasesOf(frag.text, 9); // the poem's own phrases, in order
     const debord = entropy > 0.55;
+    /* a country wants settlements: further fragments are pulled until
+     * eight to twelve toponyms stand, or the pulls are spent */
+    const wantTowns = rng.int(8, 12);
+    const phrases = own.slice();
+    const seenP = new Set(phrases.map((p) => p.toLowerCase()));
+    for (let pulls = 0; phrases.length < wantTowns + 2 && pulls < 4; pulls++) {
+      const more = source.fragment(rng, { minWords: 6, maxWords: 24 });
+      for (const p of phrasesOf(more.text, 6)) {
+        if (!seenP.has(p.toLowerCase())) { seenP.add(p.toLowerCase()); phrases.push(p); }
+      }
+    }
 
     const defs = el('defs');
     const nodes = [];
@@ -120,8 +131,8 @@ export default {
     /* ---- toponyms ---- */
     const longest = phrases.reduce((a, b) => (b.length > a.length ? b : a), phrases[0]);
     const seaPhrase = longest;
-    const lastPhrase = phrases[phrases.length - 1];
-    const settlements = phrases.filter((p) => p !== seaPhrase && p !== lastPhrase).slice(0, 6);
+    const lastPhrase = own[own.length - 1]; // terres inconnues keep the poem's own ending
+    const settlements = phrases.filter((p) => p !== seaPhrase && p !== lastPhrase).slice(0, wantTowns);
     if (!settlements.length) settlements.push(phrases[0]);
     const spts = settlements.map((p, i) => {
       const x = box.x + box.w * ((i + 0.7) / (settlements.length + 0.6)) + rng.gauss(0, 24);
@@ -166,7 +177,7 @@ export default {
     const seaLen = (seaX1 - seaX0) + (8 / 3) * (17 * 17) / (seaX1 - seaX0);
     const seaName = `the sea of ${seaPhrase.toLowerCase()}`;
     const seaOpts = (sz) => ({ size: sz, family: FONTS.serif, style: 'italic', tracking: 3 });
-    const seaFits = (str, sz) => measure(str, seaOpts(sz)) <= seaLen * 0.88;
+    const seaFits = (str, sz) => measure(str, seaOpts(sz)) <= seaLen * 0.74; // the compass sits at the arc's right end
     let seaSize = sheet.scale(1.5);
     while (!seaFits(seaName, seaSize) && seaSize * 0.9 >= sheet.scale(0.5)) seaSize *= 0.9;
     let seaLines = [seaName];
