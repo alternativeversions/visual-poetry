@@ -70,7 +70,7 @@ const { makeTextSource } = await import('../src/text/procedures.js');
 const { ENGINES, sheetSizeFor, pickHybrid } = await import('../src/engines/index.js');
 const { buildColophon } = await import('../src/colophon.js');
 
-function render(seed, engine, mode = 'corpus', userText = '', hybrid = false, pairing = null) {
+function render(seed, engine, mode = 'corpus', userText = '', hybrid = false, pairing = null, entropy = 0.5) {
   resetIds();
   setFonts(pairing || TYPE_PAIRINGS.find((p) => p.id === 'baskerville') || TYPE_PAIRINGS[0]);
   const hybridWith = pickHybrid(makeRng(seed + ':hybrid'), engine, hybrid);
@@ -78,7 +78,7 @@ function render(seed, engine, mode = 'corpus', userText = '', hybrid = false, pa
   const size = sheetSizeFor(engine);
   const sheet = makeSheet({
     width: size.width, height: size.height, palette,
-    entropy: 0.5, material: hybridWith ? hybridWith.id : null,
+    entropy, material: hybridWith ? hybridWith.id : null,
     marginRatio: engine.marginRatio || 0.09,
   });
   const source = makeTextSource(makeRng(seed + ':text'), { mode, userText });
@@ -127,6 +127,34 @@ for (const engine of ENGINES) {
     }
   }
   console.log(`ok  ${engine.id} (${seeds.length} seeds × 3 modes)`);
+}
+
+// both ends of the slider render clean, for every engine
+for (const engine of ENGINES) {
+  for (const seed of seeds.slice(0, 3)) {
+    for (const e of [0, 1]) {
+      try {
+        const r = render(seed, engine, 'corpus', '', false, null, e);
+        if (/NaN|undefined/.test(r.xml)) { console.error(`FAIL hygiene at entropy ${e}: ${engine.id}/${seed}`); failures++; }
+      } catch (err) {
+        console.error(`FAIL exception at entropy ${e}: ${engine.id}/${seed}`);
+        console.error('  ', err.stack.split('\n').slice(0, 4).join('\n   '));
+        failures++;
+      }
+    }
+  }
+}
+console.log('ok  entropy ends (0 and 1) render clean');
+
+// the slider must move these four; they ignored it through the first edition
+const ENTROPY_ENGINES = ['diagram', 'revisedPhilosophy', 'gloss', 'technopaegnia'];
+for (const id of ENTROPY_ENGINES) {
+  const engine = ENGINES.find((x) => x.id === id);
+  for (const seed of seeds.slice(0, 4)) {
+    const lo = render(seed, engine, 'corpus', '', false, null, 0).xml;
+    const hi = render(seed, engine, 'corpus', '', false, null, 1).xml;
+    if (lo === hi) console.warn(`WARN entropy-insensitive: ${id}/${seed}`);
+  }
 }
 
 // forced hybrid across seeds (engines may or may not pair; must not throw)
