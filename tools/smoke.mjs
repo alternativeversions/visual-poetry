@@ -154,6 +154,28 @@ for (const pairing of TYPE_PAIRINGS) {
 }
 console.log(`ok  type pairings (${TYPE_PAIRINGS.length})`);
 
+// the shelf: every family a pairing names has @font-face rules, and every
+// rule's file is on disk (a pairing that names a missing face renders in
+// the stand-ins while the colophon claims otherwise)
+{
+  const fs = await import('node:fs');
+  const path = await import('node:path');
+  const fontsDir = new URL('../fonts/', import.meta.url).pathname;
+  const css = fs.readFileSync(path.join(fontsDir, 'fonts.css'), 'utf8');
+  const families = new Set([...css.matchAll(/font-family:\s*'([^']+)'/g)].map((m) => m[1]));
+  for (const pairing of TYPE_PAIRINGS) {
+    for (const family of pairing.families) {
+      if (!families.has(family)) { console.error(`FAIL fonts: ${pairing.id} names ${family}, which fonts.css lacks`); failures++; }
+    }
+  }
+  let files = 0;
+  for (const [, file] of css.matchAll(/url\(([^)]+)\)/g)) {
+    files++;
+    if (!fs.existsSync(path.join(fontsDir, file))) { console.error(`FAIL fonts: ${file} is not on the shelf`); failures++; }
+  }
+  console.log(`ok  fonts (${families.size} families, ${files} files, ${TYPE_PAIRINGS.length} pairings)`);
+}
+
 if (failures) {
   console.error(`\n${failures} failure(s)`);
   process.exit(1);

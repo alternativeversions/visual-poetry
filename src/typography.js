@@ -4,56 +4,115 @@
  * purpose; everything else snaps.
  */
 
+import { makeRng } from './prng.js';
+
 /*
- * Type pairings — curated serif/sans/mono triples, all system stacks
- * with generic fallbacks (no webfonts; exports stay live, editable
- * text wherever they open). One pairing is active per render: chosen
- * by the seed, or pinned from the rail.
+ * Type pairings — curated serif/sans/mono triples. The faces travel
+ * with the site: seventeen open-licensed families under fonts/, fetched
+ * as latin + latin-ext woff2 by tools/fonts.mjs and served from the
+ * repository itself, never from a CDN. Each stack still ends in the
+ * system faces it stood in for, so a sheet degrades to Georgia rather
+ * than to nothing. One pairing is active per render: chosen by the
+ * seed from those that allow chance, or pinned from the rail.
  */
+const COURIER = "'Courier Prime', 'Courier New', 'Courier', monospace";
+
 export const TYPE_PAIRINGS = [
   {
     id: 'baskerville',
-    name: 'Baskerville & Futura',
-    serif: "'Baskerville', 'Georgia', serif",
-    sans: "'Futura', 'Century Gothic', 'Avant Garde', 'Avenir Next', sans-serif",
-    mono: "'Courier New', 'Courier', monospace",
+    name: 'Libre Baskerville & Jost',
+    after: 'after Baskerville & Futura: the English transitional and the Bauhaus geometric',
+    serif: "'Libre Baskerville', 'Baskerville', 'Georgia', serif",
+    sans: "'Jost', 'Futura', 'Century Gothic', 'Avenir Next', sans-serif",
+    mono: COURIER,
+    families: ['Libre Baskerville', 'Jost', 'Courier Prime'],
   },
   {
     id: 'garamond',
-    name: 'Garamond & Gill Sans',
-    serif: "'Garamond', 'EB Garamond', 'Hoefler Text', 'Georgia', serif",
-    sans: "'Gill Sans', 'Gill Sans MT', 'Lato', 'Trebuchet MS', sans-serif",
-    mono: "'Courier New', 'Courier', monospace",
+    name: 'EB Garamond & Cabin',
+    after: 'after Garamond & Gill Sans: the French old-style and the English humanist',
+    serif: "'EB Garamond', 'Garamond', 'Hoefler Text', 'Georgia', serif",
+    sans: "'Cabin', 'Gill Sans', 'Gill Sans MT', 'Trebuchet MS', sans-serif",
+    mono: COURIER,
+    families: ['EB Garamond', 'Cabin', 'Courier Prime'],
   },
   {
-    id: 'didot',
-    name: 'Didot & Helvetica',
-    serif: "'Didot', 'Bodoni MT', 'Bodoni 72', 'Georgia', serif",
-    sans: "'Helvetica Neue', 'Helvetica', 'Arial', sans-serif",
-    mono: "'Menlo', 'Consolas', 'Courier New', monospace",
+    id: 'bodoni',
+    name: 'Bodoni Moda & Archivo',
+    after: 'after Bodoni & Akzidenz-Grotesk: the Italian modern and the Swiss grotesque',
+    serif: "'Bodoni Moda', 'Didot', 'Bodoni MT', 'Bodoni 72', 'Georgia', serif",
+    sans: "'Archivo', 'Helvetica Neue', 'Helvetica', 'Arial', sans-serif",
+    mono: COURIER,
+    families: ['Bodoni Moda', 'Archivo', 'Courier Prime'],
   },
   {
-    id: 'palatino',
-    name: 'Palatino & Optima',
-    serif: "'Palatino', 'Palatino Linotype', 'Book Antiqua', serif",
-    sans: "'Optima', 'Candara', 'Segoe UI', sans-serif",
-    mono: "'Courier New', 'Courier', monospace",
+    id: 'alegreya',
+    name: 'Alegreya & Alegreya Sans',
+    after: 'after Palatino & Optima: the calligraphic humanists',
+    serif: "'Alegreya', 'Palatino', 'Palatino Linotype', 'Book Antiqua', serif",
+    sans: "'Alegreya Sans', 'Optima', 'Candara', 'Segoe UI', sans-serif",
+    mono: COURIER,
+    families: ['Alegreya', 'Alegreya Sans', 'Courier Prime'],
   },
   {
-    id: 'hoefler',
-    name: 'Hoefler & Avenir',
-    serif: "'Hoefler Text', 'Iowan Old Style', 'Times New Roman', serif",
-    sans: "'Avenir Next', 'Avenir', 'Helvetica Neue', sans-serif",
-    mono: "'Menlo', 'Consolas', 'Courier New', monospace",
+    id: 'crimson',
+    name: 'Crimson Pro & Nunito Sans',
+    after: 'after Hoefler Text & Avenir: the Renaissance text face and the rounded geometric',
+    serif: "'Crimson Pro', 'Hoefler Text', 'Iowan Old Style', 'Times New Roman', serif",
+    sans: "'Nunito Sans', 'Avenir Next', 'Avenir', 'Helvetica Neue', sans-serif",
+    mono: COURIER,
+    families: ['Crimson Pro', 'Nunito Sans', 'Courier Prime'],
   },
   {
     id: 'typewriter',
-    name: 'American Typewriter & Courier',
-    serif: "'American Typewriter', 'Prestige Elite Std', 'Courier New', serif",
-    sans: "'Helvetica Neue', 'Helvetica', 'Arial', sans-serif",
-    mono: "'Courier New', 'Courier', monospace",
+    name: 'Cutive & Archivo',
+    after: 'after American Typewriter & Helvetica: the office and the grotesque',
+    serif: "'Cutive', 'American Typewriter', 'Courier New', serif",
+    sans: "'Archivo', 'Helvetica Neue', 'Helvetica', 'Arial', sans-serif",
+    mono: COURIER,
+    families: ['Cutive', 'Archivo', 'Courier Prime'],
+  },
+  {
+    id: 'plex',
+    name: 'IBM Plex',
+    after: 'the machine age: the IBM 7070, the Zuse Z22, the chain printer',
+    serif: "'IBM Plex Serif', 'Georgia', serif",
+    sans: "'IBM Plex Sans', 'Helvetica Neue', 'Arial', sans-serif",
+    mono: "'IBM Plex Mono', 'Courier Prime', 'Courier New', monospace",
+    families: ['IBM Plex Serif', 'IBM Plex Sans', 'IBM Plex Mono'],
+  },
+  {
+    id: 'spectral',
+    name: 'Spectral & Source Sans',
+    after: 'the book page: a serif made for the screen, with a working italic',
+    serif: "'Spectral', 'Georgia', serif",
+    sans: "'Source Sans 3', 'Helvetica Neue', 'Arial', sans-serif",
+    mono: COURIER,
+    families: ['Spectral', 'Source Sans 3', 'Courier Prime'],
+  },
+  {
+    id: 'mimeo',
+    name: 'Courier Prime throughout',
+    after: 'the typewriter poem: dsh, Cobbing, the duplicator — every face the typewriter’s',
+    serif: COURIER,
+    sans: COURIER,
+    mono: COURIER,
+    families: ['Courier Prime'],
+    chance: false, // pinned only: a Talmud page in Courier is a joke the dice should not make
   },
 ];
+
+/** The pairings the seed may choose from when the rail says chance. */
+export const CHANCE_PAIRINGS = TYPE_PAIRINGS.filter((p) => p.chance !== false);
+
+/** Older links name the system faces the pairings stood in for. */
+export const LEGACY_PAIRING_IDS = { didot: 'bodoni', palatino: 'alegreya', hoefler: 'crimson' };
+
+/** The pairing a render uses: pinned by id, or the seed's own choice. */
+export function pairingFor(seed, typeId) {
+  const id = LEGACY_PAIRING_IDS[typeId] || typeId;
+  return TYPE_PAIRINGS.find((p) => p.id === id) || makeRng(seed + ':type').pick(CHANCE_PAIRINGS);
+}
 
 /*
  * The active faces. Engines read FONTS.* at generate time, so calling
@@ -70,6 +129,47 @@ export function setFonts(pairing) {
   FONTS.serif = pairing.serif;
   FONTS.sans = pairing.sans;
   FONTS.mono = pairing.mono;
+}
+
+/* ------------------------------------------------------------------ *
+ * Loading the faces.
+ *
+ * Text is measured on a canvas at generate time and the coordinates are
+ * frozen into the SVG, so a pairing's families must be resident before
+ * the engine runs — measured against a stand-in, a sheet is laid out to
+ * the wrong metrics and reflows the moment the real face arrives.
+ * ------------------------------------------------------------------ */
+
+const PROBE = 'aœ'; // reaches both the latin and the latin-ext subset
+
+const unquote = (s) => String(s).replace(/["']/g, '').trim();
+
+/** True when every family of the pairing has a face resident. In the
+ * node harness there are no faces to load, and the metric tables serve. */
+export function facesLoaded(pairing) {
+  if (typeof document === 'undefined' || !document.fonts) return true;
+  const loaded = new Set();
+  document.fonts.forEach((face) => { if (face.status === 'loaded') loaded.add(unquote(face.family)); });
+  return pairing.families.every((family) => loaded.has(family));
+}
+
+/**
+ * Ask the browser for the pairing's faces — regular, italic and bold of
+ * each family — and resolve true once they are resident, false if they
+ * are not by `timeoutMs` (a blocked request, a shelf that never
+ * arrived): the render then proceeds in the fallback faces and the
+ * colophon says so. Never rejects.
+ */
+export async function loadFonts(pairing, timeoutMs = 4000) {
+  if (typeof document === 'undefined' || !document.fonts || !document.fonts.load) return true;
+  const wanted = [];
+  for (const family of pairing.families) {
+    for (const face of ['normal 400', 'italic 400', 'normal 700']) wanted.push(`${face} 16px "${family}"`);
+  }
+  const loads = Promise.all(wanted.map((f) => document.fonts.load(f, PROBE).catch(() => [])));
+  const late = new Promise((resolve) => setTimeout(resolve, timeoutMs));
+  await Promise.race([loads, late]);
+  return facesLoaded(pairing);
 }
 
 /** Modular scale: step(0) = base, step(n) = base * ratio^n. */
@@ -89,6 +189,15 @@ export function makeScale(base = 15, ratio = 1.333) {
 let ctx = null;
 if (typeof document !== 'undefined') {
   ctx = document.createElement('canvas').getContext('2d');
+  /* Measure as the sheet renders: kerning on, hinting off. A hinted face
+   * rounds its advances to whole pixels at the size it is drawn, so the
+   * same word measures differently at 10 px and at the 8.5 px a scaled
+   * sheet shows it at; geometric precision makes advances linear in size
+   * on both sides (main.js sets the same on the <svg>). */
+  if (ctx) {
+    if ('fontKerning' in ctx) ctx.fontKerning = 'normal';
+    if ('textRendering' in ctx) ctx.textRendering = 'geometricPrecision';
+  }
 }
 
 /* Average advance widths (em fractions) approximating Baskerville/Futura;

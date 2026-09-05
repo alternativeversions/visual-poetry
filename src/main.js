@@ -7,12 +7,12 @@
 
 import { makeRng, randomSeed } from './prng.js';
 import { choosePalette } from './palette.js';
-import { makeSheet, TYPE_PAIRINGS, setFonts } from './typography.js';
+import { makeSheet, TYPE_PAIRINGS, LEGACY_PAIRING_IDS, setFonts, pairingFor, loadFonts, facesLoaded } from './typography.js';
 import { el, g, resetIds, NS } from './svg.js';
 import { makeTextSource } from './text/procedures.js';
 import { ENGINES, ENGINE_MAP, pickEngine, sheetSizeFor, pickHybrid } from './engines/index.js';
 import { buildColophon } from './colophon.js';
-import { serializeSVG, downloadSVG, downloadPNG, downloadFlattenedSVG } from './export.js';
+import { serializeSVGWithFonts, downloadSVG, downloadPNG, downloadFlattenedSVG } from './export.js';
 import { provider, requestParses, requestShapes, requestProfiles, shapeCandidates, onOracle } from './text/aiParser.js';
 
 /* ------------------------------------------------------------------ *
@@ -38,7 +38,10 @@ function readURL() {
   if (state.engine && !ENGINE_MAP[state.engine]) state.engine = null;
   if (h.get('source')) state.source = h.get('source');
   const t = h.get('type') || q.get('type');
-  if (t && TYPE_PAIRINGS.some((p) => p.id === t)) state.typeId = t;
+  if (t) {
+    const id = LEGACY_PAIRING_IDS[t] || t; // older links name the faces stood in for
+    if (TYPE_PAIRINGS.some((p) => p.id === id)) state.typeId = id;
+  }
   state.hybrid = q.get('hybrid') === '1' || h.get('hybrid') === '1';
   // ?ai=ollama | anthropic | off — persist the parsing provider
   const ai = q.get('ai');
@@ -77,9 +80,7 @@ export function renderPoem({ seed, engineId, source, userText, entropy, paperMod
   resetIds();
 
   // the type pairing: pinned from the rail, or the seed's own choice
-  const pairing =
-    TYPE_PAIRINGS.find((p) => p.id === typeId) ||
-    makeRng(seed + ':type').pick(TYPE_PAIRINGS);
+  const pairing = pairingFor(seed, typeId);
   setFonts(pairing);
 
   // Independent streams so one facet's draws never perturb another's.
@@ -113,6 +114,11 @@ export function renderPoem({ seed, engineId, source, userText, entropy, paperMod
   const svg = el('svg', {
     viewBox: `0 0 ${sheet.width} ${sheet.height}`,
     'font-kerning': 'normal',
+    /* geometric precision: hinted faces round their advances to the pixel
+     * at the size they are drawn, so a word measured at 10 px and shown
+     * at 8.5 px on a scaled sheet would not keep its measured width. This
+     * turns hinting off for the sheet, as the measuring canvas does. */
+    'text-rendering': 'geometricPrecision',
   });
   svg.appendChild(el('rect', {
     x: 0, y: 0, width: sheet.width, height: sheet.height,
@@ -129,15 +135,29 @@ export function renderPoem({ seed, engineId, source, userText, entropy, paperMod
     caption: result.caption || null,
     title: result.title || 'untitled',
   };
-  meta.colophon = buildColophon(meta) + ` · set in ${pairing.name} · ${new Date().getFullYear()}`;
+  /* the colophon names the faces honestly: the pairing when its
+   * families are resident, the stand-ins when they are not */
+  const setIn = facesLoaded(pairing)
+    ? `set in ${pairing.name}`
+    : `meant for ${pairing.name}, set in the system’s stand-ins`;
+  meta.colophon = buildColophon(meta) + ` · ${setIn} · ${new Date().getFullYear()}`;
   meta.filename = `typestract-${engine.id}-${seed}.svg`;
   return { svg, meta, engine };
 }
 
-function show(entry, { push = true } = {}) {
+let showToken = 0;
+
+async function show(entry, { push = true } = {}) {
   state.seed = entry.seed;
   if (entry.engineId !== undefined) state.engine = entry.engineId;
   writeURL();
+
+  /* the faces first: text is measured at generate time, so the pairing's
+   * families must be resident before the engine runs. A newer show()
+   * arriving while they load wins, and this one steps aside. */
+  const token = ++showToken;
+  await loadFonts(pairingFor(state.seed, state.typeId));
+  if (token !== showToken) return;
 
   current = renderPoem({
     seed: state.seed,
@@ -175,9 +195,11 @@ function show(entry, { push = true } = {}) {
 
 function addThumb(entry, index) {
   const gallery = document.getElementById('gallery');
-  const xml = serializeSVG(entry.svg, entry.meta);
   const img = document.createElement('img');
-  img.src = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(xml);
+  // the thumbnail carries its faces too, or it would show the stand-ins
+  serializeSVGWithFonts(entry.svg, entry.meta).then((xml) => {
+    img.src = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(xml);
+  });
   img.title = entry.meta.colophon;
   img.dataset.index = index;
   img.addEventListener('click', () => {
@@ -313,6 +335,7 @@ function wire() {
     const opt = document.createElement('option');
     opt.value = p.id;
     opt.textContent = p.name;
+    opt.title = p.after;
     typeSelect.appendChild(opt);
   }
   typeSelect.value = state.typeId;
