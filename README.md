@@ -486,6 +486,48 @@ both lines are harmless and expected.
   vermillion, process blue, mimeo violet, ochre — present in ~35% of
   renders and always sparingly.
 
+## Type
+
+The faces travel with the site. Seventeen open-licensed families sit
+under `fonts/` as latin and latin-ext woff2 subsets, each beside its SIL
+Open Font License, served from the repository like everything else — no
+font CDN, no build, nothing to install. A visitor on Windows, Linux or
+Android sees the sheet a visitor on a Mac sees, and the colophon's *set
+in* is true everywhere. A pairing costs a visitor 300–500 KB, fetched
+only when it is active; the whole shelf is 2.4 MB.
+
+| pairing | after | `type=` |
+| --- | --- | --- |
+| Libre Baskerville & Jost | Baskerville & Futura: the English transitional and the Bauhaus geometric | `baskerville` |
+| EB Garamond & Cabin | Garamond & Gill Sans: the French old-style and the English humanist | `garamond` |
+| Bodoni Moda & Archivo | Bodoni & Akzidenz-Grotesk: the Italian modern and the Swiss grotesque | `bodoni` |
+| Alegreya & Alegreya Sans | Palatino & Optima: the calligraphic humanists | `alegreya` |
+| Crimson Pro & Nunito Sans | Hoefler Text & Avenir: the Renaissance text face and the rounded geometric | `crimson` |
+| Cutive & Archivo | American Typewriter & Helvetica | `typewriter` |
+| IBM Plex | the machine age: the IBM 7070, the Zuse Z22, the chain printer | `plex` |
+| Spectral & Source Sans | the book page: a serif made for the screen, with a working italic | `spectral` |
+| Courier Prime throughout | the typewriter poem: dsh, Cobbing, the duplicator | `mimeo` |
+
+Courier Prime is the monospace of every pairing but Plex, which brings
+its own. When the rail says *chance* the seed chooses among the first
+eight; Courier throughout is pinned only, since a Talmud page in Courier
+is a joke the dice should not make. Older links naming `didot`,
+`palatino` or `hoefler` still open, on the faces that replaced them.
+
+The faces are loaded before anything is measured: text is set on a
+canvas at generate time and the coordinates are frozen into the SVG, so
+a sheet laid out against a stand-in would reflow the moment the real
+face arrived. Canvas and sheet both render at geometric precision, so a
+hinted face cannot round a word to one width at the size it was
+measured and another at the size it is shown. If a face cannot be loaded within four seconds — a blocked
+request, a shelf that never came — the sheet renders in the system's
+stand-ins and the colophon says so: *meant for Libre Baskerville & Jost,
+set in the system's stand-ins*.
+
+The shelf is restocked with `node tools/fonts.mjs`, which fetches the
+subsets from Google Fonts, writes `fonts/fonts.css` and a manifest of
+what came from where, and is the only network in the repository.
+
 ## SVG export
 
 The poem is a real inline `<svg>`; export serializes a clone with
@@ -494,7 +536,16 @@ The poem is a real inline `<svg>`; export serializes a clone with
 colophon. Only `<text>`/`<tspan>`/`<textPath>` are used — never
 `foreignObject` — so files open cleanly in Illustrator and Inkscape.
 **Type is not outlined**: exported text remains live, editable text, so
-substitute fonts freely. Asemic strokes and diagram scaffolds are real
+substitute fonts freely.
+
+**The faces travel with the export.** Each SVG carries, in a `<style>`
+of `@font-face` rules with `data:` sources, exactly the faces its text
+uses — a sheet in one serif and its italic carries those subset files,
+not the shelf — so it opens in a browser, a slide or a rasterizer looking
+as it did on screen. Illustrator and Inkscape ignore the rule and use
+the installed face of the same name; install it from `fonts/` and the
+file opens faithfully there too. PNG export embeds the same faces before
+rasterizing, since an SVG drawn as an image cannot see the page's own. Asemic strokes and diagram scaffolds are real
 filled/stroked paths with correct linecaps and joins, fit for plotters
 and laser cutters.
 
@@ -512,6 +563,7 @@ available for quick sharing.
 
 ```text
 index.html                 the shell: sheet, control rail, colophon bar
+fonts/                     the shelf: seventeen open faces as woff2, each beside its license
 src/main.js                boot, seed handling, keyboard, export wiring
 src/prng.js                seeded PRNG (xmur3 + mulberry32)
 src/svg.js                 SVG builders, paths, arrowheads, ink strokes
@@ -528,6 +580,9 @@ src/text/subjects.js       ten hand-authored 24×16 picture tapes + the grid sam
 src/text/aiParser.js       the amendment: parse/silhouette/profile oracles and their gates
 tools/smoke.mjs            headless determinism/hygiene checks (node tools/smoke.mjs)
 tools/oracle.mjs           the operator's bench: query the Ollama oracles from the CLI
+tools/fonts.mjs            restock the shelf from Google Fonts — the only network in the repo
 ```
 
-MIT licensed. Set in the reader's own Baskerville, Futura, and Courier.
+MIT licensed; the faces under `fonts/` are under the SIL Open Font
+License. Set in Libre Baskerville, Jost and Courier Prime, which travel
+with the site.

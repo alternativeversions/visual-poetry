@@ -1,0 +1,536 @@
+{
+  "fetched": "2026-09-05",
+  "source": "Google Fonts (fonts.googleapis.com css2 API), latin + latin-ext subsets",
+  "license": "SIL Open Font License 1.1 — see each family’s OFL.txt",
+  "families": [
+    {
+      "family": "Libre Baskerville",
+      "spec": "ital,wght@0,400;0,700;1,400",
+      "files": [
+        {
+          "file": "libre-baskerville/libre-baskerville-400-italic-latin-ext.woff2",
+          "bytes": 23036,
+          "from": "https://fonts.gstatic.com/s/librebaskerville/v24/kmKWZrc3Hgbbcjq75U4uslyuy4kn0qNccR04_RUJeby2OU36SjNDlufifQ.woff2"
+        },
+        {
+          "file": "libre-baskerville/libre-baskerville-400-italic-latin.woff2",
+          "bytes": 21564,
+          "from": "https://fonts.gstatic.com/s/librebaskerville/v24/kmKWZrc3Hgbbcjq75U4uslyuy4kn0qNccR04_RUJeby2OU36SjNNluc.woff2"
+        },
+        {
+          "file": "libre-baskerville/libre-baskerville-400-normal-latin-ext.woff2",
+          "bytes": 35468,
+          "from": "https://fonts.gstatic.com/s/librebaskerville/v24/kmKnZrc3Hgbbcjq75U4uslyuy4kn0qNXaxMICA.woff2"
+        },
+        {
+          "file": "libre-baskerville/libre-baskerville-400-normal-latin.woff2",
+          "bytes": 33872,
+          "from": "https://fonts.gstatic.com/s/librebaskerville/v24/kmKnZrc3Hgbbcjq75U4uslyuy4kn0qNZaxM.woff2"
+        },
+        {
+          "file": "libre-baskerville/libre-baskerville-700-normal-latin-ext.woff2",
+          "bytes": 35468,
+          "from": "https://fonts.gstatic.com/s/librebaskerville/v24/kmKnZrc3Hgbbcjq75U4uslyuy4kn0qNXaxMICA.woff2"
+        },
+        {
+          "file": "libre-baskerville/libre-baskerville-700-normal-latin.woff2",
+          "bytes": 33872,
+          "from": "https://fonts.gstatic.com/s/librebaskerville/v24/kmKnZrc3Hgbbcjq75U4uslyuy4kn0qNZaxM.woff2"
+        }
+      ],
+      "bytes": 183280
+    },
+    {
+      "family": "Jost",
+      "spec": "ital,wght@0,100..900;1,100..900",
+      "files": [
+        {
+          "file": "jost/jost-100-900-italic-latin-ext.woff2",
+          "bytes": 19436,
+          "from": "https://fonts.gstatic.com/s/jost/v20/92zUtBhPNqw73oHt7j4hTxM.woff2"
+        },
+        {
+          "file": "jost/jost-100-900-italic-latin.woff2",
+          "bytes": 30700,
+          "from": "https://fonts.gstatic.com/s/jost/v20/92zUtBhPNqw73oHt4D4h.woff2"
+        },
+        {
+          "file": "jost/jost-100-900-normal-latin-ext.woff2",
+          "bytes": 17104,
+          "from": "https://fonts.gstatic.com/s/jost/v20/92zatBhPNqw73ord4iYl.woff2"
+        },
+        {
+          "file": "jost/jost-100-900-normal-latin.woff2",
+          "bytes": 26576,
+          "from": "https://fonts.gstatic.com/s/jost/v20/92zatBhPNqw73oTd4g.woff2"
+        }
+      ],
+      "bytes": 93816
+    },
+    {
+      "family": "Courier Prime",
+      "spec": "ital,wght@0,400;0,700;1,400;1,700",
+      "files": [
+        {
+          "file": "courier-prime/courier-prime-400-italic-latin-ext.woff2",
+          "bytes": 14000,
+          "from": "https://fonts.gstatic.com/s/courierprime/v11/u-4n0q2lgwslOqpF_6gQ8kELawRZVsf6lvg.woff2"
+        },
+        {
+          "file": "courier-prime/courier-prime-400-italic-latin.woff2",
+          "bytes": 21556,
+          "from": "https://fonts.gstatic.com/s/courierprime/v11/u-4n0q2lgwslOqpF_6gQ8kELawRZWMf6.woff2"
+        },
+        {
+          "file": "courier-prime/courier-prime-700-italic-latin-ext.woff2",
+          "bytes": 14036,
+          "from": "https://fonts.gstatic.com/s/courierprime/v11/u-4i0q2lgwslOqpF_6gQ8kELawRR4-Lvp9nsBXw.woff2"
+        },
+        {
+          "file": "courier-prime/courier-prime-700-italic-latin.woff2",
+          "bytes": 21980,
+          "from": "https://fonts.gstatic.com/s/courierprime/v11/u-4i0q2lgwslOqpF_6gQ8kELawRR4-Lvqdns.woff2"
+        },
+        {
+          "file": "courier-prime/courier-prime-400-normal-latin-ext.woff2",
+          "bytes": 12736,
+          "from": "https://fonts.gstatic.com/s/courierprime/v11/u-450q2lgwslOqpF_6gQ8kELaw9pWt_-.woff2"
+        },
+        {
+          "file": "courier-prime/courier-prime-400-normal-latin.woff2",
+          "bytes": 18640,
+          "from": "https://fonts.gstatic.com/s/courierprime/v11/u-450q2lgwslOqpF_6gQ8kELawFpWg.woff2"
+        },
+        {
+          "file": "courier-prime/courier-prime-700-normal-latin-ext.woff2",
+          "bytes": 12928,
+          "from": "https://fonts.gstatic.com/s/courierprime/v11/u-4k0q2lgwslOqpF_6gQ8kELY7pMT-7fq8Ho.woff2"
+        },
+        {
+          "file": "courier-prime/courier-prime-700-normal-latin.woff2",
+          "bytes": 19348,
+          "from": "https://fonts.gstatic.com/s/courierprime/v11/u-4k0q2lgwslOqpF_6gQ8kELY7pMT-Dfqw.woff2"
+        }
+      ],
+      "bytes": 135224
+    },
+    {
+      "family": "EB Garamond",
+      "spec": "ital,wght@0,400..800;1,400..800",
+      "files": [
+        {
+          "file": "eb-garamond/eb-garamond-400-800-italic-latin-ext.woff2",
+          "bytes": 88576,
+          "from": "https://fonts.gstatic.com/s/ebgaramond/v33/SlGWmQSNjdsmc35JDF1K5GRweDU1ZzPJ.woff2"
+        },
+        {
+          "file": "eb-garamond/eb-garamond-400-800-italic-latin.woff2",
+          "bytes": 47940,
+          "from": "https://fonts.gstatic.com/s/ebgaramond/v33/SlGWmQSNjdsmc35JDF1K5GRweDs1Zw.woff2"
+        },
+        {
+          "file": "eb-garamond/eb-garamond-400-800-normal-latin-ext.woff2",
+          "bytes": 113928,
+          "from": "https://fonts.gstatic.com/s/ebgaramond/v33/SlGUmQSNjdsmc35JDF1K5GR7SDktYw.woff2"
+        },
+        {
+          "file": "eb-garamond/eb-garamond-400-800-normal-latin.woff2",
+          "bytes": 44336,
+          "from": "https://fonts.gstatic.com/s/ebgaramond/v33/SlGUmQSNjdsmc35JDF1K5GR1SDk.woff2"
+        }
+      ],
+      "bytes": 294780
+    },
+    {
+      "family": "Cabin",
+      "spec": "ital,wght@0,400..700;1,400..700",
+      "files": [
+        {
+          "file": "cabin/cabin-400-700-italic-latin-ext.woff2",
+          "bytes": 17464,
+          "from": "https://fonts.gstatic.com/s/cabin/v35/u-4g0qWljRw-Pd815fNqc8T_wAFcX-c37OngHXi-Ag.woff2"
+        },
+        {
+          "file": "cabin/cabin-400-700-italic-latin.woff2",
+          "bytes": 29844,
+          "from": "https://fonts.gstatic.com/s/cabin/v35/u-4g0qWljRw-Pd815fNqc8T_wAFcX-c37OnuHXg.woff2"
+        },
+        {
+          "file": "cabin/cabin-400-700-normal-latin-ext.woff2",
+          "bytes": 15992,
+          "from": "https://fonts.gstatic.com/s/cabin/v35/u-4i0qWljRw-PfU81xCKCpdpbgZJl6Xvp9nsBXw.woff2"
+        },
+        {
+          "file": "cabin/cabin-400-700-normal-latin.woff2",
+          "bytes": 28320,
+          "from": "https://fonts.gstatic.com/s/cabin/v35/u-4i0qWljRw-PfU81xCKCpdpbgZJl6Xvqdns.woff2"
+        }
+      ],
+      "bytes": 91620
+    },
+    {
+      "family": "Bodoni Moda",
+      "spec": "ital,opsz,wght@0,6..96,400..900;1,6..96,400..900",
+      "files": [
+        {
+          "file": "bodoni-moda/bodoni-moda-400-900-italic-latin-ext.woff2",
+          "bytes": 28196,
+          "from": "https://fonts.gstatic.com/s/bodonimoda/v28/aFTS7PxzY382XsXX63LUYJSPeKTcW2BO.woff2"
+        },
+        {
+          "file": "bodoni-moda/bodoni-moda-400-900-italic-latin.woff2",
+          "bytes": 53756,
+          "from": "https://fonts.gstatic.com/s/bodonimoda/v28/aFTS7PxzY382XsXX63LUYJSPeKrcWw.woff2"
+        },
+        {
+          "file": "bodoni-moda/bodoni-moda-400-900-normal-latin-ext.woff2",
+          "bytes": 25020,
+          "from": "https://fonts.gstatic.com/s/bodonimoda/v28/aFTQ7PxzY382XsXX63LUYJSESKjEXw.woff2"
+        },
+        {
+          "file": "bodoni-moda/bodoni-moda-400-900-normal-latin.woff2",
+          "bytes": 46260,
+          "from": "https://fonts.gstatic.com/s/bodonimoda/v28/aFTQ7PxzY382XsXX63LUYJSKSKg.woff2"
+        }
+      ],
+      "bytes": 153232
+    },
+    {
+      "family": "Archivo",
+      "spec": "ital,wght@0,100..900;1,100..900",
+      "files": [
+        {
+          "file": "archivo/archivo-100-900-italic-latin-ext.woff2",
+          "bytes": 35016,
+          "from": "https://fonts.gstatic.com/s/archivo/v25/k3kBo8UDI-1M0wlSfdzyIEkpwTM29hr-8mTYCx6muLRm.woff2"
+        },
+        {
+          "file": "archivo/archivo-100-900-italic-latin.woff2",
+          "bytes": 39156,
+          "from": "https://fonts.gstatic.com/s/archivo/v25/k3kBo8UDI-1M0wlSfdzyIEkpwTM29hr-8mTYCxCmuA.woff2"
+        },
+        {
+          "file": "archivo/archivo-100-900-normal-latin-ext.woff2",
+          "bytes": 32608,
+          "from": "https://fonts.gstatic.com/s/archivo/v25/k3kPo8UDI-1M0wlSV9XAw6lQkqWY8Q82sLyTOxK-vA.woff2"
+        },
+        {
+          "file": "archivo/archivo-100-900-normal-latin.woff2",
+          "bytes": 34928,
+          "from": "https://fonts.gstatic.com/s/archivo/v25/k3kPo8UDI-1M0wlSV9XAw6lQkqWY8Q82sLydOxI.woff2"
+        }
+      ],
+      "bytes": 141708
+    },
+    {
+      "family": "Alegreya",
+      "spec": "ital,wght@0,400..900;1,400..900",
+      "files": [
+        {
+          "file": "alegreya/alegreya-400-900-italic-latin-ext.woff2",
+          "bytes": 38316,
+          "from": "https://fonts.gstatic.com/s/alegreya/v41/4UaHrEBBsBhlBjvfkSLk96Tp56N1.woff2"
+        },
+        {
+          "file": "alegreya/alegreya-400-900-italic-latin.woff2",
+          "bytes": 44456,
+          "from": "https://fonts.gstatic.com/s/alegreya/v41/4UaHrEBBsBhlBjvfkSLk96rp5w.woff2"
+        },
+        {
+          "file": "alegreya/alegreya-400-900-normal-latin-ext.woff2",
+          "bytes": 37856,
+          "from": "https://fonts.gstatic.com/s/alegreya/v41/4UaBrEBBsBhlBjvfkSLvx6jx4w.woff2"
+        },
+        {
+          "file": "alegreya/alegreya-400-900-normal-latin.woff2",
+          "bytes": 43476,
+          "from": "https://fonts.gstatic.com/s/alegreya/v41/4UaBrEBBsBhlBjvfkSLhx6g.woff2"
+        }
+      ],
+      "bytes": 164104
+    },
+    {
+      "family": "Alegreya Sans",
+      "spec": "ital,wght@0,400;0,700;1,400",
+      "files": [
+        {
+          "file": "alegreya-sans/alegreya-sans-400-italic-latin-ext.woff2",
+          "bytes": 21900,
+          "from": "https://fonts.gstatic.com/s/alegreyasans/v28/5aUt9_-1phKLFgshYDvh6Vwt7V9dsW1Ttm4.woff2"
+        },
+        {
+          "file": "alegreya-sans/alegreya-sans-400-italic-latin.woff2",
+          "bytes": 24380,
+          "from": "https://fonts.gstatic.com/s/alegreyasans/v28/5aUt9_-1phKLFgshYDvh6Vwt7V9dv21T.woff2"
+        },
+        {
+          "file": "alegreya-sans/alegreya-sans-400-normal-latin-ext.woff2",
+          "bytes": 21276,
+          "from": "https://fonts.gstatic.com/s/alegreyasans/v28/5aUz9_-1phKLFgshYDvh6Vwt7VRtvXVX.woff2"
+        },
+        {
+          "file": "alegreya-sans/alegreya-sans-400-normal-latin.woff2",
+          "bytes": 23708,
+          "from": "https://fonts.gstatic.com/s/alegreyasans/v28/5aUz9_-1phKLFgshYDvh6Vwt7VptvQ.woff2"
+        },
+        {
+          "file": "alegreya-sans/alegreya-sans-700-normal-latin-ext.woff2",
+          "bytes": 21868,
+          "from": "https://fonts.gstatic.com/s/alegreyasans/v28/5aUu9_-1phKLFgshYDvh6Vwt5eFIqER2i1dC.woff2"
+        },
+        {
+          "file": "alegreya-sans/alegreya-sans-700-normal-latin.woff2",
+          "bytes": 23976,
+          "from": "https://fonts.gstatic.com/s/alegreyasans/v28/5aUu9_-1phKLFgshYDvh6Vwt5eFIqEp2iw.woff2"
+        }
+      ],
+      "bytes": 137108
+    },
+    {
+      "family": "Crimson Pro",
+      "spec": "ital,wght@0,200..900;1,200..900",
+      "files": [
+        {
+          "file": "crimson-pro/crimson-pro-200-900-italic-latin-ext.woff2",
+          "bytes": 39808,
+          "from": "https://fonts.gstatic.com/s/crimsonpro/v28/q5uBsoa5M_tv7IihmnkabARekY1wDfKi.woff2"
+        },
+        {
+          "file": "crimson-pro/crimson-pro-200-900-italic-latin.woff2",
+          "bytes": 51432,
+          "from": "https://fonts.gstatic.com/s/crimsonpro/v28/q5uBsoa5M_tv7IihmnkabARekYNwDQ.woff2"
+        },
+        {
+          "file": "crimson-pro/crimson-pro-200-900-normal-latin-ext.woff2",
+          "bytes": 37988,
+          "from": "https://fonts.gstatic.com/s/crimsonpro/v28/q5uDsoa5M_tv7IihmnkabARVoYFoCQ.woff2"
+        },
+        {
+          "file": "crimson-pro/crimson-pro-200-900-normal-latin.woff2",
+          "bytes": 48200,
+          "from": "https://fonts.gstatic.com/s/crimsonpro/v28/q5uDsoa5M_tv7IihmnkabARboYE.woff2"
+        }
+      ],
+      "bytes": 177428
+    },
+    {
+      "family": "Nunito Sans",
+      "spec": "ital,opsz,wght@0,6..12,200..1000;1,6..12,200..1000",
+      "files": [
+        {
+          "file": "nunito-sans/nunito-sans-200-1000-italic-latin-ext.woff2",
+          "bytes": 42412,
+          "from": "https://fonts.gstatic.com/s/nunitosans/v19/pe0OMImSLYBIv1o4X1M8cce4OdVisMz5nZRqy6cmmmU3t3NeCAAFOvV9SNjBwHuBZFI.woff2"
+        },
+        {
+          "file": "nunito-sans/nunito-sans-200-1000-italic-latin.woff2",
+          "bytes": 47308,
+          "from": "https://fonts.gstatic.com/s/nunitosans/v19/pe0OMImSLYBIv1o4X1M8cce4OdVisMz5nZRqy6cmmmU3t3NeCAAFOvV9SNjBznuB.woff2"
+        },
+        {
+          "file": "nunito-sans/nunito-sans-200-1000-normal-latin-ext.woff2",
+          "bytes": 43656,
+          "from": "https://fonts.gstatic.com/s/nunitosans/v19/pe0AMImSLYBIv1o4X1M8ce2xCx3yop4tQpF_MeTm0lfUVwoNnq4CLz0_kJPxzGOF.woff2"
+        },
+        {
+          "file": "nunito-sans/nunito-sans-200-1000-normal-latin.woff2",
+          "bytes": 49648,
+          "from": "https://fonts.gstatic.com/s/nunitosans/v19/pe0AMImSLYBIv1o4X1M8ce2xCx3yop4tQpF_MeTm0lfUVwoNnq4CLz0_kJ3xzA.woff2"
+        }
+      ],
+      "bytes": 183024
+    },
+    {
+      "family": "Cutive",
+      "spec": "",
+      "files": [
+        {
+          "file": "cutive/cutive-400-normal-latin-ext.woff2",
+          "bytes": 15900,
+          "from": "https://fonts.gstatic.com/s/cutive/v24/NaPZcZ_fHOhV3IpLRvJCkyo.woff2"
+        },
+        {
+          "file": "cutive/cutive-400-normal-latin.woff2",
+          "bytes": 24132,
+          "from": "https://fonts.gstatic.com/s/cutive/v24/NaPZcZ_fHOhV3IpLSPJC.woff2"
+        }
+      ],
+      "bytes": 40032
+    },
+    {
+      "family": "IBM Plex Serif",
+      "spec": "ital,wght@0,400;0,700;1,400",
+      "files": [
+        {
+          "file": "ibm-plex-serif/ibm-plex-serif-400-italic-latin-ext.woff2",
+          "bytes": 16296,
+          "from": "https://fonts.gstatic.com/s/ibmplexserif/v20/jizBREVNn1dOx-zrZ2X3pZvkTiUa6zsTjmbI.woff2"
+        },
+        {
+          "file": "ibm-plex-serif/ibm-plex-serif-400-italic-latin.woff2",
+          "bytes": 20900,
+          "from": "https://fonts.gstatic.com/s/ibmplexserif/v20/jizBREVNn1dOx-zrZ2X3pZvkTiUa6zUTjg.woff2"
+        },
+        {
+          "file": "ibm-plex-serif/ibm-plex-serif-400-normal-latin-ext.woff2",
+          "bytes": 15476,
+          "from": "https://fonts.gstatic.com/s/ibmplexserif/v20/jizDREVNn1dOx-zrZ2X3pZvkTiUR2zcLig.woff2"
+        },
+        {
+          "file": "ibm-plex-serif/ibm-plex-serif-400-normal-latin.woff2",
+          "bytes": 19580,
+          "from": "https://fonts.gstatic.com/s/ibmplexserif/v20/jizDREVNn1dOx-zrZ2X3pZvkTiUf2zc.woff2"
+        },
+        {
+          "file": "ibm-plex-serif/ibm-plex-serif-700-normal-latin-ext.woff2",
+          "bytes": 15568,
+          "from": "https://fonts.gstatic.com/s/ibmplexserif/v20/jizAREVNn1dOx-zrZ2X3pZvkTi2k_iI6q1vxiQ.woff2"
+        },
+        {
+          "file": "ibm-plex-serif/ibm-plex-serif-700-normal-latin.woff2",
+          "bytes": 19904,
+          "from": "https://fonts.gstatic.com/s/ibmplexserif/v20/jizAREVNn1dOx-zrZ2X3pZvkTi2k_iI0q1s.woff2"
+        }
+      ],
+      "bytes": 107724
+    },
+    {
+      "family": "IBM Plex Sans",
+      "spec": "ital,wght@0,400;0,700;1,400",
+      "files": [
+        {
+          "file": "ibm-plex-sans/ibm-plex-sans-400-italic-latin-ext.woff2",
+          "bytes": 17008,
+          "from": "https://fonts.gstatic.com/s/ibmplexsans/v23/zYXEKVElMYYaJe8bpLHnCwDKhdTEG46kmUZQCX598fQbM4jw8V78x9OWIhqbQ5g0voKW6g.woff2"
+        },
+        {
+          "file": "ibm-plex-sans/ibm-plex-sans-400-italic-latin.woff2",
+          "bytes": 24356,
+          "from": "https://fonts.gstatic.com/s/ibmplexsans/v23/zYXEKVElMYYaJe8bpLHnCwDKhdTEG46kmUZQCX598fQbM4jw8V78x9OWIhqbQ5g6voI.woff2"
+        },
+        {
+          "file": "ibm-plex-sans/ibm-plex-sans-400-normal-latin-ext.woff2",
+          "bytes": 30964,
+          "from": "https://fonts.gstatic.com/s/ibmplexsans/v23/zYXzKVElMYYaJe8bpLHnCwDKr932-G7dytD-Dmu1syxQKYbABA.woff2"
+        },
+        {
+          "file": "ibm-plex-sans/ibm-plex-sans-400-normal-latin.woff2",
+          "bytes": 45712,
+          "from": "https://fonts.gstatic.com/s/ibmplexsans/v23/zYXzKVElMYYaJe8bpLHnCwDKr932-G7dytD-Dmu1syxeKYY.woff2"
+        },
+        {
+          "file": "ibm-plex-sans/ibm-plex-sans-700-normal-latin-ext.woff2",
+          "bytes": 30964,
+          "from": "https://fonts.gstatic.com/s/ibmplexsans/v23/zYXzKVElMYYaJe8bpLHnCwDKr932-G7dytD-Dmu1syxQKYbABA.woff2"
+        },
+        {
+          "file": "ibm-plex-sans/ibm-plex-sans-700-normal-latin.woff2",
+          "bytes": 45712,
+          "from": "https://fonts.gstatic.com/s/ibmplexsans/v23/zYXzKVElMYYaJe8bpLHnCwDKr932-G7dytD-Dmu1syxeKYY.woff2"
+        }
+      ],
+      "bytes": 194716
+    },
+    {
+      "family": "IBM Plex Mono",
+      "spec": "ital,wght@0,400;0,700;1,400",
+      "files": [
+        {
+          "file": "ibm-plex-mono/ibm-plex-mono-400-italic-latin-ext.woff2",
+          "bytes": 14524,
+          "from": "https://fonts.gstatic.com/s/ibmplexmono/v20/-F6pfjptAgt5VM-kVkqdyU8n1ioa23dgv-s.woff2"
+        },
+        {
+          "file": "ibm-plex-mono/ibm-plex-mono-400-italic-latin.woff2",
+          "bytes": 16448,
+          "from": "https://fonts.gstatic.com/s/ibmplexmono/v20/-F6pfjptAgt5VM-kVkqdyU8n1ioa1Xdg.woff2"
+        },
+        {
+          "file": "ibm-plex-mono/ibm-plex-mono-400-normal-latin-ext.woff2",
+          "bytes": 13348,
+          "from": "https://fonts.gstatic.com/s/ibmplexmono/v20/-F63fjptAgt5VM-kVkqdyU8n1iEq129k.woff2"
+        },
+        {
+          "file": "ibm-plex-mono/ibm-plex-mono-400-normal-latin.woff2",
+          "bytes": 14708,
+          "from": "https://fonts.gstatic.com/s/ibmplexmono/v20/-F63fjptAgt5VM-kVkqdyU8n1i8q1w.woff2"
+        },
+        {
+          "file": "ibm-plex-mono/ibm-plex-mono-700-normal-latin-ext.woff2",
+          "bytes": 13380,
+          "from": "https://fonts.gstatic.com/s/ibmplexmono/v20/-F6qfjptAgt5VM-kVkqdyU8n3pQPwl5FgtIU.woff2"
+        },
+        {
+          "file": "ibm-plex-mono/ibm-plex-mono-700-normal-latin.woff2",
+          "bytes": 14908,
+          "from": "https://fonts.gstatic.com/s/ibmplexmono/v20/-F6qfjptAgt5VM-kVkqdyU8n3pQPwlBFgg.woff2"
+        }
+      ],
+      "bytes": 87316
+    },
+    {
+      "family": "Spectral",
+      "spec": "ital,wght@0,400;0,700;1,400",
+      "files": [
+        {
+          "file": "spectral/spectral-400-italic-latin-ext.woff2",
+          "bytes": 20644,
+          "from": "https://fonts.gstatic.com/s/spectral/v15/rnCt-xNNww_2s0amA9M8onTmTMuk.woff2"
+        },
+        {
+          "file": "spectral/spectral-400-italic-latin.woff2",
+          "bytes": 22712,
+          "from": "https://fonts.gstatic.com/s/spectral/v15/rnCt-xNNww_2s0amA9M8onrmTA.woff2"
+        },
+        {
+          "file": "spectral/spectral-400-normal-latin-ext.woff2",
+          "bytes": 20240,
+          "from": "https://fonts.gstatic.com/s/spectral/v15/rnCr-xNNww_2s0amA9M3knj-SA.woff2"
+        },
+        {
+          "file": "spectral/spectral-400-normal-latin.woff2",
+          "bytes": 21696,
+          "from": "https://fonts.gstatic.com/s/spectral/v15/rnCr-xNNww_2s0amA9M5kng.woff2"
+        },
+        {
+          "file": "spectral/spectral-700-normal-latin-ext.woff2",
+          "bytes": 20824,
+          "from": "https://fonts.gstatic.com/s/spectral/v15/rnCs-xNNww_2s0amA9uCt23PafadWQ.woff2"
+        },
+        {
+          "file": "spectral/spectral-700-normal-latin.woff2",
+          "bytes": 23036,
+          "from": "https://fonts.gstatic.com/s/spectral/v15/rnCs-xNNww_2s0amA9uCt23BafY.woff2"
+        }
+      ],
+      "bytes": 129152
+    },
+    {
+      "family": "Source Sans 3",
+      "spec": "ital,wght@0,200..900;1,200..900",
+      "files": [
+        {
+          "file": "source-sans-3/source-sans-3-200-900-italic-latin-ext.woff2",
+          "bytes": 59496,
+          "from": "https://fonts.gstatic.com/s/sourcesans3/v19/nwpMtKy2OAdR1K-IwhWudF-R3woqaeLY1HY.woff2"
+        },
+        {
+          "file": "source-sans-3/source-sans-3-200-900-italic-latin.woff2",
+          "bytes": 28532,
+          "from": "https://fonts.gstatic.com/s/sourcesans3/v19/nwpMtKy2OAdR1K-IwhWudF-R3woqZ-LY.woff2"
+        },
+        {
+          "file": "source-sans-3/source-sans-3-200-900-normal-latin-ext.woff2",
+          "bytes": 60088,
+          "from": "https://fonts.gstatic.com/s/sourcesans3/v19/nwpStKy2OAdR1K-IwhWudF-R3wEaZfrc.woff2"
+        },
+        {
+          "file": "source-sans-3/source-sans-3-200-900-normal-latin.woff2",
+          "bytes": 28740,
+          "from": "https://fonts.gstatic.com/s/sourcesans3/v19/nwpStKy2OAdR1K-IwhWudF-R3w8aZQ.woff2"
+        }
+      ],
+      "bytes": 176856
+    }
+  ]
+}

@@ -158,6 +158,10 @@ languages feed `babel`'s courses and `intextus`'s grids directly.
    EB Garamond, Jost, Courier Prime; ~600 KB of woff2 in the repo, no CDN)
    keeps "zero dependencies, no build" and gives every visitor the design
    the colophon describes. Recommendation: ship.
+   **Taken, 2026-09-05: shipped** — seventeen families under `fonts/`,
+   nine pairings (the six rebuilt on open faces, plus IBM Plex, Spectral
+   & Source Sans, and Courier Prime throughout); faces loaded before
+   measurement; exports carry the faces they use. See README, *Type*.
 2. **Motion.** The constitution bans gradients, neon and particles, not
    time. Recommendation: build it, restrained and switchable.
 3. **Order.** Tiers 1 and 2 first (they change how the site is met), then 3
