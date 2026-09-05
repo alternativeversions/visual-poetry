@@ -51,6 +51,14 @@ function readURL() {
       else localStorage.setItem('typestract-ai', ai);
     } catch { /* no storage */ }
   }
+  // ?local=1 | 0 — remember whether to probe for corpus.local.js
+  const local = q.get('local');
+  if (local === '1' || local === '0') {
+    try {
+      if (local === '1') localStorage.setItem('typestract-local', '1');
+      else localStorage.removeItem('typestract-local');
+    } catch { /* no storage */ }
+  }
 }
 
 function writeURL() {

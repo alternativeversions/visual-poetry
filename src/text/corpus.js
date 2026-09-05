@@ -279,12 +279,23 @@ export const CORPUS = [
   { text: 'umbra', attribution: 'a resonant word', mood: 'elegiac', kind: 'word', lang: 'la' },
 ];
 
-/* Merge a private, gitignored supplement if one exists. */
-try {
-  const local = await import('./corpus.local.js');
-  if (Array.isArray(local.CORPUS)) CORPUS.push(...local.CORPUS);
-} catch {
-  /* no local corpus; the shipped one stands alone */
+/* Merge a private, gitignored supplement if one exists. The probe runs
+ * only when asked — once with ?local=1, remembered — so a cold load
+ * requests nothing that is not there. */
+const wantsLocal = (() => {
+  try {
+    if (typeof location !== 'undefined' && /[?&]local=1(&|$)/.test(location.search)) return true;
+    if (typeof window !== 'undefined' && window.localStorage) return window.localStorage.getItem('typestract-local') === '1';
+  } catch { /* no location or storage */ }
+  return false;
+})();
+if (wantsLocal) {
+  try {
+    const local = await import('./corpus.local.js');
+    if (Array.isArray(local.CORPUS)) CORPUS.push(...local.CORPUS);
+  } catch {
+    /* asked for, not present; the shipped corpus stands alone */
+  }
 }
 
 /** Fragments filtered by kind. */

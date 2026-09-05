@@ -465,10 +465,10 @@ whatever provider is set.
 
 A private supplement is welcome: create `src/text/corpus.local.js`
 (gitignored) exporting a `CORPUS` array in the same fragment shape, and
-it merges into every mode at load. The site probes for this file on
-every boot, so a **404 for `corpus.local.js` in the console is normal**
-when you have none — Safari also logs a SyntaxError for the same probe;
-both lines are harmless and expected.
+it merges into every mode at load. The site probes for it only when
+told to: open the page once with `?local=1` and the choice is remembered
+in this browser (`?local=0` forgets it). With the flag off, nothing is
+requested and the console stays clean.
 
 ## Craft rules
 
