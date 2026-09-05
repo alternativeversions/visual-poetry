@@ -56,6 +56,18 @@ function phrasesOf(text, want) {
     parts = [];
     for (let i = 0; i < words.length; i += per) parts.push(words.slice(i, i + per).join(' '));
   }
+  /* too few clauses for the systems wanted: halve the longest until
+   * there are enough, or nothing long enough remains to halve */
+  while (parts.length < want) {
+    let li = 0;
+    for (let i = 1; i < parts.length; i++) {
+      if (parts[i].split(/\s+/).length > parts[li].split(/\s+/).length) li = i;
+    }
+    const ws = parts[li].split(/\s+/);
+    if (ws.length < 4) break;
+    const cut = Math.ceil(ws.length / 2);
+    parts.splice(li, 1, ws.slice(0, cut).join(' '), ws.slice(cut).join(' '));
+  }
   return parts.slice(0, want).length ? parts.slice(0, want) : [text || 'aria'];
 }
 
@@ -71,7 +83,12 @@ export default {
     const frag = source.fragment(rng, { minWords: 8, maxWords: 26 });
     const mood = frag.mood || rng.pick(Object.keys(TEMPI));
     const tempo = TEMPI[mood] || 'senza tempo';
-    const phrases = phrasesOf(frag.text, rng.int(4, 6));
+    let phrases = phrasesOf(frag.text, rng.int(4, 6));
+    if (phrases.length < 4) {
+      /* a short fragment makes a thin score: a second fragment fills the systems */
+      const more = source.fragment(rng, { minWords: 8, maxWords: 26 });
+      phrases = phrases.concat(phrasesOf(more.text, 4 - phrases.length));
+    }
     const asemicLyrics = sheet.material === 'asemic';
 
     const gap = 7;
