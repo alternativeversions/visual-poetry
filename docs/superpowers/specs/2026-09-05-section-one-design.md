@@ -45,7 +45,7 @@ openings, motion, the weak four, the corpus).
 | --- | --- | --- |
 | `e` | entropy ≠ 0.50 | two decimals, `e=0.85` |
 | `paper` | paper mode ≠ `auto` | `warm` or `cool` |
-| `text` | source is `user` and the drawer is non-empty | the drawer text, trimmed, whitespace collapsed to single spaces, cut at 600 characters, `URLSearchParams`-encoded |
+| `text` | source is `user` and the drawer is non-empty | the drawer text, trimmed, whitespace collapsed to single spaces, cut at 4,000 characters, `URLSearchParams`-encoded |
 
 Text lives in the hash and never in the query, so it does not reach a
 server log.
@@ -64,10 +64,13 @@ the source radio is synced.
 
 ### The cap
 
-600 characters is enough for a stanza and keeps the URL under browsers'
-comfortable limits with the other keys. A link whose text was cut opens
-with the cut text; nothing signals the cut beyond the drawer showing what
-was kept. (An earlier draft proposed a notice; YAGNI.)
+4,000 characters is about a page of verse. The text rides in the hash,
+which the server never sees, so the only limits are the address bar and
+wherever the link is pasted: Chrome and Edge allow around 2 MB, Firefox
+and Safari tens of thousands of characters, and English text grows about
+1.2–1.5× under URL encoding, so the URL stays near 6 KB. A link whose text
+was cut opens with the cut text; nothing signals the cut beyond the drawer
+showing what was kept. (An earlier draft proposed a notice; YAGNI.)
 
 ## 2. Entropy branches
 
