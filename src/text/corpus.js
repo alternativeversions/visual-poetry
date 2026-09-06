@@ -360,6 +360,22 @@ export const CORPUS = [
   { text: 'nil posse creari de nilo', attribution: 'Lucretius, De rerum natura I (c. 55 BCE)', mood: 'cosmic', kind: 'phrase', lang: 'la' },
   { text: 'In nova fert animus mutatas dicere formas corpora', attribution: 'Ovid, Metamorphoses I (8 CE)', mood: 'cosmic', kind: 'line', lang: 'la' },
   { text: 'Barbarus hic ego sum, qui non intellegor ulli', attribution: 'Ovid, Tristia V.10 (c. 12 CE)', mood: 'elegiac', kind: 'line', lang: 'la' },
+  // ——— Spanish and Portuguese, in the originals ———
+  { text: 'Caminante, no hay camino, se hace camino al andar.', attribution: 'A. Machado, “Proverbios y cantares” XXIX (1912)', mood: 'cosmic', kind: 'sentence', lang: 'es' },
+  { text: 'Caminante, son tus huellas el camino y nada más', attribution: 'A. Machado, “Proverbios y cantares” XXIX (1912)', mood: 'still', kind: 'line', lang: 'es' },
+  { text: 'Mi infancia son recuerdos de un patio de Sevilla', attribution: 'A. Machado, “Retrato” (1912)', mood: 'elegiac', kind: 'line', lang: 'es' },
+  { text: 'en tierra, en humo, en polvo, en sombra, en nada.', attribution: 'L. de Góngora, “Mientras por competir con tu cabello” (1582)', mood: 'elegiac', kind: 'line', lang: 'es' },
+  { text: 'En una noche oscura, con ansias, en amores inflamada', attribution: 'San Juan de la Cruz, “Noche oscura” (c. 1578)', mood: 'ecstatic', kind: 'line', lang: 'es' },
+  { text: 'la música callada, la soledad sonora', attribution: 'San Juan de la Cruz, “Cántico espiritual” (c. 1578)', mood: 'still', kind: 'phrase', lang: 'es' },
+  { text: 'Volverán las oscuras golondrinas en tu balcón sus nidos a colgar', attribution: 'G. A. Bécquer, Rimas LIII (1871)', mood: 'elegiac', kind: 'line', lang: 'es' },
+  { text: '¿Qué es poesía? dices mientras clavas en mi pupila tu pupila azul', attribution: 'G. A. Bécquer, Rimas XXI (1871)', mood: 'ecstatic', kind: 'line', lang: 'es' },
+  { text: 'Poesía… eres tú.', attribution: 'G. A. Bécquer, Rimas XXI (1871)', mood: 'ecstatic', kind: 'sentence', lang: 'es' },
+  { text: 'Amor é fogo que arde sem se ver, é ferida que dói e não se sente', attribution: 'L. de Camões, Rimas (1595)', mood: 'ecstatic', kind: 'line', lang: 'pt' },
+  { text: 'Mudam-se os tempos, mudam-se as vontades', attribution: 'L. de Camões, Rimas (1595)', mood: 'elegiac', kind: 'line', lang: 'pt' },
+  { text: 'As armas e os barões assinalados', attribution: 'L. de Camões, Os Lusíadas I (1572)', mood: 'cosmic', kind: 'line', lang: 'pt' },
+  { text: 'Sozinho, no cais deserto, a esta manhã de Verão', attribution: 'F. Pessoa (Álvaro de Campos), “Ode Marítima”, Orpheu 2 (1915)', mood: 'still', kind: 'line', lang: 'pt' },
+  { text: 'À dolorosa luz das grandes lâmpadas eléctricas da fábrica', attribution: 'F. Pessoa (Álvaro de Campos), “Ode Triunfal”, Orpheu 1 (1915)', mood: 'ecstatic', kind: 'line', lang: 'pt' },
+  { text: 'Ó mar salgado, quanto do teu sal são lágrimas de Portugal!', attribution: 'F. Pessoa, “Mar Português” (1918)', mood: 'elegiac', kind: 'sentence', lang: 'pt' },
 ];
 
 /* Merge a private, gitignored supplement if one exists. The probe runs
