@@ -155,6 +155,22 @@ console.log(`ok  entropy moves ${ENTROPY_ENGINES.length} once-deaf engines`);
   console.log('ok  typestract coverage (figures on white)');
 }
 
+// every fragment carries its four fields with valid values, and no text repeats
+{
+  const { CORPUS } = await import('../src/text/corpus.js');
+  const MOODS = new Set(['still', 'elegiac', 'ecstatic', 'wry', 'cosmic']);
+  const KINDS = new Set(['word', 'phrase', 'line', 'sentence']);
+  const seenText = new Set();
+  for (const f of CORPUS) {
+    if (!f.text || !f.attribution || !MOODS.has(f.mood) || !KINDS.has(f.kind) || !/^[a-z]{2}$/.test(f.lang || '')) {
+      console.error(`FAIL corpus fields: ${JSON.stringify(f).slice(0, 90)}`); failures++;
+    }
+    if (seenText.has(f.text)) { console.error(`FAIL corpus duplicate: ${f.text.slice(0, 60)}`); failures++; }
+    seenText.add(f.text);
+  }
+  console.log(`ok  corpus (${CORPUS.length} fragments; fields and uniqueness)`);
+}
+
 // forced hybrid across seeds (engines may or may not pair; must not throw)
 for (const engine of ENGINES) {
   for (const seed of seeds.slice(0, 3)) {

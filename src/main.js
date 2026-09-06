@@ -10,6 +10,7 @@ import { TYPE_PAIRINGS, LEGACY_PAIRING_IDS, pairingFor, loadFonts } from './typo
 import { ENGINES, ENGINE_MAP } from './engines/index.js';
 import { renderPoem } from './render.js';
 import { OPENINGS } from './openings.js';
+import { loadReadme, renderLineage } from './lineage.js';
 import { serializeSVGWithFonts, downloadSVG, downloadPNG, downloadFlattenedSVG } from './export.js';
 import { provider, requestParses, requestShapes, requestProfiles, shapeCandidates, onOracle } from './text/aiParser.js';
 
@@ -137,6 +138,7 @@ async function show(entry, { push = true } = {}) {
   /* the wall stands in for the sheet when asked; the sheet render above
    * still feeds the seed box, the history and the gallery */
   const onWall = state.view === 'wall';
+  document.title = onWall ? `TYPESTRACT · the wall · ${state.seed}` : `TYPESTRACT · ${current.meta.title}`;
   holder.hidden = onWall;
   document.getElementById('wall').hidden = !onWall;
   document.body.classList.toggle('on-wall', onWall);
@@ -144,6 +146,8 @@ async function show(entry, { push = true } = {}) {
     renderWall();
     document.getElementById('colophon').textContent = wallColophon(current.meta);
   }
+
+  if (!document.getElementById('drawer').hidden) openDrawer();
 
   if (push) {
     historyList.splice(historyIndex + 1);
@@ -220,6 +224,38 @@ function wallColophon(meta) {
   const setIn = parts.find((p) => /^(set in|meant for)/.test(p)) || '';
   return [parts[0], 'the wall', `seed ${meta.seed}`, `${ENGINES.length === 25 ? 'twenty-five' : ENGINES.length} engines`, setIn, parts[parts.length - 1]]
     .filter(Boolean).join(' · ');
+}
+
+/* ------------------------------------------------------------------ *
+ * The lineage drawer: the README's paragraph for the engine on show.
+ * ------------------------------------------------------------------ */
+
+async function openDrawer() {
+  const drawer = document.getElementById('drawer');
+  const engines = [ENGINE_MAP[current.meta.engineId]];
+  if (current.meta.hybridWith) engines.push(ENGINE_MAP[current.meta.hybridWith.id]);
+  drawer.hidden = false;
+  const text = await loadReadme();
+  renderLineage(document.getElementById('drawer-body'), engines.filter(Boolean), text);
+}
+
+function closeDrawer() {
+  document.getElementById('drawer').hidden = true;
+}
+
+/* Copy the sheet's link — the hash is the whole poem. */
+function copyLink() {
+  const btn = document.getElementById('copy-link');
+  const say = (t) => { btn.textContent = t; setTimeout(() => { btn.textContent = 'copy link'; }, 1200); };
+  const fallback = () => {
+    const box = document.getElementById('seed-input');
+    box.focus();
+    box.select();
+    say('select & copy');
+  };
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(location.href).then(() => say('copied'), fallback);
+  } else fallback();
 }
 
 /* ------------------------------------------------------------------ *
@@ -364,6 +400,17 @@ function wire() {
   document.getElementById('export-png2').addEventListener('click', () => downloadPNG(current.svg, current.meta, 2));
   document.getElementById('export-png4').addEventListener('click', () => downloadPNG(current.svg, current.meta, 4));
   document.getElementById('export-flat').addEventListener('click', () => downloadFlattenedSVG(current.svg, current.meta));
+  document.getElementById('copy-link').addEventListener('click', copyLink);
+
+  const colophonBar = document.getElementById('colophon');
+  colophonBar.title = 'the lineage';
+  colophonBar.addEventListener('click', () => {
+    if (document.getElementById('drawer').hidden) openDrawer(); else closeDrawer();
+  });
+  document.getElementById('drawer-close').addEventListener('click', closeDrawer);
+  document.getElementById('stage').addEventListener('click', (e) => {
+    if (!document.getElementById('drawer').contains(e.target)) closeDrawer();
+  });
 
   /* Mobile thumb bar and rotate hint. These elements are display:none on
    * desktop, so wiring them there is harmless; on a phone they stand in
@@ -381,9 +428,11 @@ function wire() {
 
   document.addEventListener('keydown', (e) => {
     if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA' || e.metaKey || e.ctrlKey) return;
-    if (e.key === 'r' || e.key === 'R') reroll();
+    if (e.key === 'Escape') closeDrawer();
+    else if (e.key === 'r' || e.key === 'R') reroll();
     else if (e.key === 'e' || e.key === 'E') cycleEngine(1);
     else if (e.key === 's' || e.key === 'S') downloadSVG(current.svg, current.meta);
+    else if (e.key === 'c' || e.key === 'C') copyLink();
     else if (e.key === 'w' || e.key === 'W') {
       state.view = state.view === 'wall' ? 'sheet' : 'wall';
       show({ seed: state.seed, engineId: state.engine }, { push: false });

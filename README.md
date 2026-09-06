@@ -27,7 +27,7 @@ Chrome, Edge and Safari refuse over `file://`. Opening `index.html` straight
 from disk shows the rail with an empty engine list and a notice saying so.
 
 **Keys**: `R` re-roll · `E` cycle engine · `S` export SVG · `←`/`→` walk
-session history · `W` the wall. The wall shows all twenty-five engines at
+session history · `W` the wall · `C` copy link. The wall shows all twenty-five engines at
 the current seed and settings; click a tile to open that sheet. Printing
 (⌘P) gives the sheet as one page, or the wall as a twenty-five page
 chapbook, one engine to a page with its colophon as the foot. A first
@@ -477,6 +477,12 @@ whatever provider is set.
 3. **Procedural** — legible operations a 1960s concretist could have done
    with scissors: permutation cycles, erasure (ghosts at 8% opacity),
    stutter, recombination at phrase boundaries. Never Markov-babble.
+
+The shipped corpus stands at some three hundred fragments and eighty
+resonant words in nine languages — English, French, German, Italian, Latin, Spanish,
+Portuguese, and Japanese hokku in the original beside Chinese in Waley's
+and Pound's renderings — every one published before 1929 and tagged with
+its mood, its kind and its language, so an engine can ask for one voice.
 
 A private supplement is welcome: create `src/text/corpus.local.js`
 (gitignored) exporting a `CORPUS` array in the same fragment shape, and
