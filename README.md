@@ -478,6 +478,12 @@ whatever provider is set.
    with scissors: permutation cycles, erasure (ghosts at 8% opacity),
    stutter, recombination at phrase boundaries. Never Markov-babble.
 
+The shipped corpus stands at some three hundred fragments and eighty
+resonant words in nine languages — English, French, German, Italian, Latin, Spanish,
+Portuguese, and Japanese hokku in the original beside Chinese in Waley's
+and Pound's renderings — every one published before 1929 and tagged with
+its mood, its kind and its language, so an engine can ask for one voice.
+
 A private supplement is welcome: create `src/text/corpus.local.js`
 (gitignored) exporting a `CORPUS` array in the same fragment shape, and
 it merges into every mode at load. The site probes for it only when

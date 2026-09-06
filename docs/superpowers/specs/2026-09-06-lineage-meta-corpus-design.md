@@ -1,6 +1,6 @@
 # The lineage drawer, sharing meta, and a wider corpus
 
-**Date**: 2026-09-06 · **Status**: approved design · **Parent**: the
+**Date**: 2026-09-06 · **Status**: implemented 2026-09-06 · **Parent**: the
 [second-edition proposal](2026-09-05-second-edition-proposal.md), §2 (the
 lineage in the app; sharing meta) and §4 (widen the corpus). Motion
 (proposal decision 2) stays open and is not part of this.
