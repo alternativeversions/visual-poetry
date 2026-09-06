@@ -96,30 +96,42 @@ export default {
       if (p >= wing.length * 2) break;
     }
 
-    const y0 = box.y + (box.h - rows.length * lead) / 2 + lead;
+    /* the column should command the sheet: when the rows fall short of
+     * six-tenths of the page, the type grows to meet it. No draws. */
+    let bodySize = size;
+    let spineSz = spineSize;
+    let leadPx = lead;
+    const rowsH = rows.length * lead;
+    if (rowsH < box.h * 0.6) {
+      const k = Math.min(1.6, (box.h * 0.6) / rowsH);
+      bodySize *= k;
+      spineSz *= k;
+      leadPx *= k;
+    }
+    const y0 = box.y + (box.h - rows.length * leadPx) / 2 + leadPx;
     const nodes = [];
     rows.forEach((row, i) => {
       if (!row) return;
-      const y = y0 + i * lead;
+      const y = y0 + i * leadPx;
       const jx = row.jitter;
       const L = row.word[row.li] || 'x';
       const preStr = row.word.slice(0, row.li).toLowerCase();
       const postStr = row.word.slice(row.li + 1).toLowerCase();
-      const wL = measure(L.toUpperCase(), { size: spineSize, family: FONTS.serif });
+      const wL = measure(L.toUpperCase(), { size: spineSz, family: FONTS.serif });
       const opacity = row.ghost ? 0.08 : 1;
       /* spine letter, exactly on the axis */
       nodes.push(textEl(L.toUpperCase(), {
-        x: axis + jx, y, size: spineSize, family: FONTS.serif, anchor: 'middle',
+        x: axis + jx, y, size: spineSz, family: FONTS.serif, anchor: 'middle',
         fill: palette.accent || ink, opacity,
       }));
       const leftRun = (row.left ? row.left.toLowerCase() + ' ' : '') + preStr;
       const rightRun = postStr + (row.right ? ' ' + row.right.toLowerCase() : '');
       if (leftRun) nodes.push(textEl(leftRun, {
-        x: axis + jx - wL / 2 - measure(leftRun, { size, family: FONTS.serif }) - size * 0.18,
-        y, size, family: FONTS.serif, fill: ink, opacity,
+        x: axis + jx - wL / 2 - measure(leftRun, { size: bodySize, family: FONTS.serif }) - bodySize * 0.18,
+        y, size: bodySize, family: FONTS.serif, fill: ink, opacity,
       }));
       if (rightRun) nodes.push(textEl(rightRun, {
-        x: axis + jx + wL / 2 + size * 0.18, y, size, family: FONTS.serif, fill: ink, opacity,
+        x: axis + jx + wL / 2 + bodySize * 0.18, y, size: bodySize, family: FONTS.serif, fill: ink, opacity,
       }));
     });
 

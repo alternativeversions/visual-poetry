@@ -40,8 +40,19 @@ export default {
     const { box, entropy, palette } = sheet;
     const ink = palette.ink;
     const frag = source.sentence(rng, 10);
-    const phrases = phrasesOf(frag.text, 9);
+    const own = phrasesOf(frag.text, 9); // the poem's own phrases, in order
     const debord = entropy > 0.55;
+    /* a country wants settlements: further fragments are pulled until
+     * eight to twelve toponyms stand, or the pulls are spent */
+    const wantTowns = rng.int(8, 12);
+    const phrases = own.slice();
+    const seenP = new Set(phrases.map((p) => p.toLowerCase()));
+    for (let pulls = 0; phrases.length < wantTowns + 2 && pulls < 4; pulls++) {
+      const more = source.fragment(rng, { minWords: 6, maxWords: 24 });
+      for (const p of phrasesOf(more.text, 6)) {
+        if (!seenP.has(p.toLowerCase())) { seenP.add(p.toLowerCase()); phrases.push(p); }
+      }
+    }
 
     const defs = el('defs');
     const nodes = [];
@@ -120,8 +131,8 @@ export default {
     /* ---- toponyms ---- */
     const longest = phrases.reduce((a, b) => (b.length > a.length ? b : a), phrases[0]);
     const seaPhrase = longest;
-    const lastPhrase = phrases[phrases.length - 1];
-    const settlements = phrases.filter((p) => p !== seaPhrase && p !== lastPhrase).slice(0, 6);
+    const lastPhrase = own[own.length - 1]; // terres inconnues keep the poem's own ending
+    const settlements = phrases.filter((p) => p !== seaPhrase && p !== lastPhrase).slice(0, wantTowns);
     if (!settlements.length) settlements.push(phrases[0]);
     const spts = settlements.map((p, i) => {
       const x = box.x + box.w * ((i + 0.7) / (settlements.length + 0.6)) + rng.gauss(0, 24);
@@ -154,11 +165,53 @@ export default {
         spts[i].y = Math.max(box.y + 40, Math.min(coastY(spts[i].x) - 14, spts[i].y));
       }
     }
+    /* ---- the sea's name, measured against the neatline ----
+     * Laid out here (no draws) so the settlement labels below can keep
+     * clear of it; the nodes are pushed after the river, where the sea
+     * has always been drawn. */
+    const seaMidY = (coastY(box.x + box.w * 0.3) + box.y + box.h) / 2 + 30;
+    const seaX0 = box.x + 40;
+    const seaX1 = box.x + box.w - 40;
+    const seaArc = (yy) => `M${r2(seaX0)} ${r2(yy)} Q${r2(box.x + box.w / 2)} ${r2(yy + 34)} ${r2(seaX1)} ${r2(yy)}`;
+    /* quadratic length ≈ chord + a sagitta correction (8/3 · s² / chord) */
+    const seaLen = (seaX1 - seaX0) + (8 / 3) * (17 * 17) / (seaX1 - seaX0);
+    const seaName = `the sea of ${seaPhrase.toLowerCase()}`;
+    const seaOpts = (sz) => ({ size: sz, family: FONTS.serif, style: 'italic', tracking: 3 });
+    const seaFits = (str, sz) => measure(str, seaOpts(sz)) <= seaLen * 0.74; // the compass sits at the arc's right end
+    let seaSize = sheet.scale(1.5);
+    while (!seaFits(seaName, seaSize) && seaSize * 0.9 >= sheet.scale(0.5)) seaSize *= 0.9;
+    let seaLines = [seaName];
+    if (!seaFits(seaName, seaSize)) {
+      /* break at the word nearest the middle, onto two arcs */
+      const ws = seaName.split(' ');
+      let best = 1;
+      let bestDiff = Infinity;
+      for (let k = 1; k < ws.length; k++) {
+        const diff = Math.abs(measure(ws.slice(0, k).join(' '), seaOpts(seaSize)) - measure(ws.slice(k).join(' '), seaOpts(seaSize)));
+        if (diff < bestDiff) { bestDiff = diff; best = k; }
+      }
+      seaLines = [ws.slice(0, best).join(' '), ws.slice(best).join(' ')];
+    }
+    const seaBand = { x: seaX0, y: seaMidY - seaSize, w: seaX1 - seaX0, h: seaSize * 1.4 * seaLines.length };
+
+    /* settlement markers and labels; a label that would print over an
+     * earlier label or the sea's name flips to the left of its marker,
+     * then steps up a line at a time. Pure geometry, no draws. */
+    const placed = [];
+    const hits = (a, b) => a.x < b.x + b.w && a.x + a.w > b.x && a.y < b.y + b.h && a.y + a.h > b.y;
     for (const s2 of spts) {
       nodes.push(el('circle', { cx: r2(s2.x), cy: r2(s2.y), r: 3.2, fill: 'none', stroke: ink, 'stroke-width': 0.9 }));
       nodes.push(el('circle', { cx: r2(s2.x), cy: r2(s2.y), r: 1.1, fill: ink }));
       const label = smallCapsText(s2.p, { x: s2.x + 7, y: s2.y + 3.5, size: 10.5, family: FONTS.serif, fill: ink, trackingEm: 0.08 });
-      if (s2.x + 7 + label._width > box.x + box.w) label.setAttribute('transform', `translate(${r2(-(label._width + 16))} 0)`);
+      const lw = label._width;
+      let flip = s2.x + 7 + lw > box.x + box.w;
+      let dy = 0;
+      const rect = () => ({ x: flip ? s2.x - 9 - lw : s2.x + 7, y: s2.y - 5.5 + dy, w: lw, h: 12 });
+      const clash = () => hits(rect(), seaBand) || placed.some((r) => hits(rect(), r));
+      if (!flip && clash()) flip = true;
+      for (let k = 0; k < 3 && clash(); k++) dy -= 16;
+      placed.push(rect());
+      if (flip || dy) label.setAttribute('transform', `translate(${r2(flip ? -(lw + 16) : 0)} ${r2(dy)})`);
       nodes.push(label);
     }
 
@@ -193,11 +246,13 @@ export default {
     }));
 
     /* ---- the sea, named at size; terres inconnues ---- */
-    const seaMidY = (coastY(box.x + box.w * 0.3) + box.y + box.h) / 2 + 30;
-    const seaD = `M${r2(box.x + 40)} ${r2(seaMidY)} Q${r2(box.x + box.w / 2)} ${r2(seaMidY + 34)} ${r2(box.x + box.w - 40)} ${r2(seaMidY)}`;
-    nodes.push(textOnPath(`the sea of ${seaPhrase.toLowerCase()}`, seaD, defs, {
-      size: sheet.scale(1.5), family: FONTS.serif, style: 'italic', fill: ink, tracking: 3, opacity: 0.9,
-    }));
+    seaLines.forEach((str, i) => {
+      const w = measure(str, seaOpts(seaSize));
+      nodes.push(textOnPath(str, seaArc(seaMidY + i * seaSize * 1.3), defs, {
+        ...seaOpts(seaSize), fill: ink, opacity: 0.9,
+        startOffset: `${r2(Math.max(0, (1 - w / seaLen) * 50))}%`,
+      }));
+    });
     const tiX = box.x + box.w - 20;
     nodes.push(smallCapsText('terres inconnues', {
       x: tiX, y: box.y + 30, size: 11, family: FONTS.serif, fill: ink, anchor: 'end', trackingEm: 0.16, opacity: 0.7,

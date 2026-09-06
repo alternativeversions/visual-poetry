@@ -146,7 +146,9 @@ export default {
       }
       let lines = breakLines(opts.text, w, mOpts);
       const fit = Math.max(1, Math.floor((yMax - y) / voice.leading));
-      const cut = opts.trail ? Math.min(lines.length, rng.int(2, 4)) : fit;
+      /* the far voice trails off sooner as the entropy rises */
+      const trailFrac = 0.75 - entropy * 0.4;
+      const cut = opts.trail ? Math.max(1, Math.min(lines.length, Math.round(lines.length * trailFrac))) : fit;
       if (lines.length > cut) {
         lines = lines.slice(0, cut);
         lines[lines.length - 1] = lines[lines.length - 1].replace(/[.,;:!?]$/, '') + ' —';
@@ -179,8 +181,13 @@ export default {
     /* ---- the daf: inner column, outer column, and the center's own
      * band of commentary above and below the utterance ---- */
     const gap = () => rng.range(18, 34);
-    const innerW = cx0 - box.x - 26;
-    const outerX = cx0 + cw + 26;
+    /* above 0.5 the voices close in: the stand-off from the center
+     * shrinks until, at 0.85, the outer voices touch the utterance's
+     * margin and begin to overrun it */
+    const closeIn = entropy > 0.5 ? Math.min(1, (entropy - 0.5) / 0.35) : 0;
+    const standoff = 26 - closeIn * 40;
+    const innerW = cx0 - box.x - standoff;
+    const outerX = cx0 + cw + standoff;
     const outerW = box.x + box.w - outerX;
     /* fill while there is page: the conversation stops only where the
      * sheet does, fainter the whole way down */
@@ -206,6 +213,14 @@ export default {
     if (innerW > 88) fillColumn(box.x, innerW, yTop + rng.range(20, 90), yBottom, 7);
     /* below the utterance */
     fillColumn(cx0 + cw * 0.08, cw * 0.84, cy0 + cH + 40, yBottom - 60, 5);
+    /* at the top of the slider the commentary prints over the text it
+     * comments on, faint */
+    if (entropy > 0.85 && !asemicGloss) {
+      const opts = nextGloss();
+      opts.opacity = 0.25;
+      opts.trail = false;
+      renderGloss(cx0, cw, cy0 + cs * 0.2, cy0 + cH + 20, opts);
+    }
 
     /* ---- the Jabès close: a page that ends on a question ---- */
     if (rng.chance(0.65) && lemmata.length) {

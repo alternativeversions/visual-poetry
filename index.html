@@ -184,6 +184,22 @@
     justify-content: center;
     width: 100%;
   }
+  #no-module {
+    max-width: 30em;
+    padding: 28px 30px;
+    background: var(--paper);
+    border: 1px solid var(--hairline);
+    font-size: 13.5px;
+    line-height: 1.5;
+  }
+  #no-module p { margin-bottom: 10px; }
+  #no-module pre {
+    font: 12px/1.6 'Courier Prime', 'Courier New', monospace;
+    white-space: pre-wrap;
+    border-top: 1px solid var(--hairline);
+    padding-top: 10px;
+    color: var(--faint);
+  }
   #sheet-holder svg {
     max-width: 100%;
     max-height: 100%;
@@ -384,7 +400,15 @@
     </aside>
 
     <main id="stage">
-      <div id="sheet-holder"></div>
+      <div id="sheet-holder">
+        <div id="no-module" hidden>
+          <p>The page loaded but its script did not.</p>
+          <p id="no-module-why"></p>
+          <pre>cd visual-poetry
+python3 -m http.server 8000
+# then open http://localhost:8000</pre>
+        </div>
+      </div>
       <div id="rotate-hint" hidden>
         <span>A landscape spread — turn your phone for the full sheet.</span>
         <button type="button" id="rotate-hint-dismiss">dismiss</button>
@@ -400,5 +424,19 @@
   <footer id="colophon"></footer>
 
   <script type="module" src="src/main.js"></script>
+  <script>
+    // Module scripts run before `load`; main.js removes #no-module as its
+    // first act. If it is still here at load, the module never ran — on
+    // file:// Chrome, Edge and Safari block ES modules outright.
+    window.addEventListener('load', () => {
+      const n = document.getElementById('no-module');
+      if (!n) return;
+      document.getElementById('no-module-why').textContent =
+        location.protocol === 'file:'
+          ? 'Browsers block ES modules opened straight from disk, so the engines never start. Serve the folder and open it through localhost:'
+          : 'Open the browser console for the error; if it is a module or CORS error, serve the folder over HTTP:';
+      n.hidden = false;
+    });
+  </script>
 </body>
 </html>
