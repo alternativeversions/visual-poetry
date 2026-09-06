@@ -47,7 +47,7 @@ function footnotes(sheet, notes) {
   const size = 12.5;
   let y = sheet.height - sheet.margin * 0.55 - (notes.length - 1) * sheet.baseline * 0.8;
   for (const n of notes) {
-    out.push(textEl(`${n.stars} ${n.text}`, {
+    out.push(textEl(n.stars ? `${n.stars} ${n.text}` : n.text, {
       x: sheet.box.x, y, size, family: FONTS.serif, style: 'italic',
       fill: sheet.palette.ink, opacity: 0.92,
     }));
@@ -745,6 +745,41 @@ const SCAFFOLDS = [
   { name: 'botanical plate', fn: botanical, caption: 'after the botanical plate, via Erasmus Darwin’s Loves of the Plants (1789)' },
 ];
 
+/* Above 0.4 the labels come unpinned: each anchored <text> drifts by a
+ * seeded gaussian, and a hairline leader runs from where it belonged, so
+ * the scaffold still says where each word was. Text on a path stays; its
+ * path is the anchor. Rotated labels and rotated groups stay too. */
+function unpin(nodes, rng, sheet) {
+  const amp = Math.max(0, (sheet.entropy - 0.4) / 0.6) * 70;
+  if (!amp) return nodes;
+  const leaders = [];
+  const tagOf = (n) => (n.tagName || n.name || '').toLowerCase();
+  const walk = (node) => {
+    const tag = tagOf(node);
+    if (tag === 'g') {
+      if (node.getAttribute('transform')) return;
+      for (const c of Array.from(node.children || [])) walk(c);
+      return;
+    }
+    if (tag !== 'text' || node.getAttribute('transform')) return;
+    const kids = Array.from(node.children || []);
+    if (kids.some((k) => tagOf(k) === 'textpath')) return;
+    const holder = node.getAttribute('x') !== null
+      ? node
+      : (kids[0] && kids[0].getAttribute && kids[0].getAttribute('x') !== null ? kids[0] : null);
+    if (!holder || node.getAttribute('y') === null) return;
+    const x = parseFloat(holder.getAttribute('x'));
+    const y = parseFloat(node.getAttribute('y'));
+    const dx = rng.gauss(0, amp * 0.6);
+    const dy = rng.gauss(0, amp * 0.45);
+    holder.setAttribute('x', r2(x + dx));
+    node.setAttribute('y', r2(y + dy));
+    leaders.push(line(x, y, x + dx, y + dy, { stroke: sheet.palette.ink, width: 0.5, opacity: 0.6 }));
+  };
+  for (const n of nodes) walk(n);
+  return nodes.concat(leaders);
+}
+
 export default {
   id: 'diagram',
   name: 'diagram',
@@ -766,7 +801,7 @@ export default {
       interjection: inter.text.toLowerCase().replace(/[.:;,]$/, '') + ' —',
     };
 
-    const nodes = scaffold.fn(rng, sheet, texts, defs);
+    const nodes = unpin(scaffold.fn(rng, sheet, texts, defs), rng, sheet);
 
     // crossbreed: the scaffold annotated in another engine's hand —
     // near-writing marginalia, or a typestract character-run band
@@ -798,10 +833,14 @@ export default {
 
     // one phrase is always exiled to the footnotes
     const exiled = rng.pick([extra.text, inter.text]);
-    nodes.push(...footnotes(sheet, [
+    const notes = [
       { stars: '*', text: `${texts.word1}, as measured from inside.` },
       { stars: '**', text: exiled.toLowerCase() },
-    ]));
+    ];
+    /* at the top of the slider one note loses its mark: the note
+     * remains, its referent is gone */
+    if (sheet.entropy > 0.85) notes[rng.int(0, notes.length - 1)].stars = '';
+    nodes.push(...footnotes(sheet, notes));
 
     let attribution = main.attribution;
     if (extra.attribution !== main.attribution) attribution += ' · ' + extra.attribution;
