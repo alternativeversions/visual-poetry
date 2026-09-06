@@ -29,8 +29,12 @@ from disk shows the rail with an empty engine list and a notice saying so.
 **Keys**: `R` re-roll · `E` cycle engine · `S` export SVG · `←`/`→` walk
 session history · `W` the wall · `C` copy link. The wall shows all twenty-five engines at
 the current seed and settings; click a tile to open that sheet. Printing
-(⌘P) gives the sheet as one page, or the wall as a twenty-five page
-chapbook, one engine to a page with its colophon as the foot. A first
+(⌘P, save as PDF) makes a book: every sheet a full-bleed plate at its own
+proportions, 6 × 8 inches, the landscape sheets turning the page
+sideways; the wall adds a half-title, a title page with the seed and the
+faces, and a list of plates at the back carrying each poem's lineage and
+text source — the numbering and seeds wait there, as in a book. Turn off
+the browser's headers and footers. A first
 visit opens on one of a dozen sheets chosen by eye (`src/openings.js`);
 every roll after that is chance. The seed lives in the URL hash; `?engine=diagram` forces
 an engine, `?hybrid=1` forces crossbreed mode. The hash also carries the
