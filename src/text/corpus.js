@@ -304,6 +304,28 @@ export const CORPUS = [
   { text: 'Stillness: the cicada’s cry sinks into the rocks', attribution: 'Bashō (trans. after Chamberlain, 1902)', mood: 'still', kind: 'line', lang: 'en' },
   { text: 'On the temple bell, resting, asleep — a butterfly', attribution: 'Buson (trans. after Chamberlain, 1902)', mood: 'still', kind: 'line', lang: 'en' },
   { text: 'The world of dew is a world of dew, and yet, and yet', attribution: 'Issa, Oraga haru (trans. after Chamberlain, 1902)', mood: 'elegiac', kind: 'line', lang: 'en' },
+  // ——— German, in the original ———
+  { text: 'Sein Blick ist vom Vorübergehn der Stäbe so müd geworden, daß er nichts mehr hält.', attribution: 'R. M. Rilke, “Der Panther” (1907)', mood: 'elegiac', kind: 'sentence', lang: 'de' },
+  { text: 'Ihm ist, als ob es tausend Stäbe gäbe und hinter tausend Stäben keine Welt.', attribution: 'R. M. Rilke, “Der Panther” (1907)', mood: 'elegiac', kind: 'sentence', lang: 'de' },
+  { text: 'Herr: es ist Zeit. Der Sommer war sehr groß.', attribution: 'R. M. Rilke, “Herbsttag” (1902)', mood: 'still', kind: 'sentence', lang: 'de' },
+  { text: 'Wer jetzt kein Haus hat, baut sich keines mehr.', attribution: 'R. M. Rilke, “Herbsttag” (1902)', mood: 'elegiac', kind: 'sentence', lang: 'de' },
+  { text: 'Wer jetzt allein ist, wird es lange bleiben', attribution: 'R. M. Rilke, “Herbsttag” (1902)', mood: 'elegiac', kind: 'line', lang: 'de' },
+  { text: 'Ich lebe mein Leben in wachsenden Ringen, die sich über die Dinge ziehn.', attribution: 'R. M. Rilke, Das Stunden-Buch (1905)', mood: 'cosmic', kind: 'sentence', lang: 'de' },
+  { text: 'Mit gelben Birnen hänget und voll mit wilden Rosen das Land in den See', attribution: 'F. Hölderlin, “Hälfte des Lebens” (1804)', mood: 'ecstatic', kind: 'line', lang: 'de' },
+  { text: 'Weh mir, wo nehm ich, wenn es Winter ist, die Blumen', attribution: 'F. Hölderlin, “Hälfte des Lebens” (1804)', mood: 'elegiac', kind: 'line', lang: 'de' },
+  { text: 'Die Mauern stehn sprachlos und kalt, im Winde klirren die Fahnen.', attribution: 'F. Hölderlin, “Hälfte des Lebens” (1804)', mood: 'still', kind: 'sentence', lang: 'de' },
+  { text: 'Was bleibet aber, stiften die Dichter.', attribution: 'F. Hölderlin, “Andenken” (1803)', mood: 'cosmic', kind: 'sentence', lang: 'de' },
+  { text: 'Warte nur, balde ruhest du auch.', attribution: 'J. W. Goethe, “Wandrers Nachtlied” II (1780)', mood: 'still', kind: 'sentence', lang: 'de' },
+  { text: 'Verweile doch! du bist so schön!', attribution: 'J. W. Goethe, Faust I (1808)', mood: 'ecstatic', kind: 'sentence', lang: 'de' },
+  { text: 'Kennst du das Land, wo die Zitronen blühn', attribution: 'J. W. Goethe, “Mignon” (1795)', mood: 'ecstatic', kind: 'line', lang: 'de' },
+  { text: 'Alle Straßen münden in schwarze Verwesung.', attribution: 'G. Trakl, “Grodek” (1914)', mood: 'elegiac', kind: 'sentence', lang: 'de' },
+  { text: 'Wenn der Schnee ans Fenster fällt, lang die Abendglocke läutet', attribution: 'G. Trakl, “Ein Winterabend” (1913)', mood: 'still', kind: 'line', lang: 'de' },
+  { text: 'Wanderer tritt still herein; Schmerz versteinerte die Schwelle.', attribution: 'G. Trakl, “Ein Winterabend” (1913)', mood: 'elegiac', kind: 'sentence', lang: 'de' },
+  { text: 'Am Abend, wenn die Glocken Frieden läuten', attribution: 'G. Trakl, “Verfall” (1913)', mood: 'still', kind: 'line', lang: 'de' },
+  { text: 'Abwärts wend ich mich zu der heiligen, unaussprechlichen, geheimnisvollen Nacht.', attribution: 'Novalis, Hymnen an die Nacht (1800)', mood: 'cosmic', kind: 'sentence', lang: 'de' },
+  { text: 'Hinunter in der Erde Schoß, weg aus des Lichtes Reichen', attribution: 'Novalis, Hymnen an die Nacht (1800)', mood: 'cosmic', kind: 'line', lang: 'de' },
+  { text: 'Ein Fichtenbaum steht einsam im Norden auf kahler Höh.', attribution: 'H. Heine, Buch der Lieder (1827)', mood: 'elegiac', kind: 'sentence', lang: 'de' },
+  { text: 'Ich weiß nicht, was soll es bedeuten, daß ich so traurig bin', attribution: 'H. Heine, “Die Lorelei” (1824)', mood: 'elegiac', kind: 'line', lang: 'de' },
 ];
 
 /* Merge a private, gitignored supplement if one exists. The probe runs
