@@ -98,7 +98,7 @@ export default {
   lineage: 'Daniel Grandbois, A Revised Poetry of Western Philosophy (2016)',
 
   generate(rng, source, sheet) {
-    const { box, baseline } = sheet;
+    const { box, baseline, entropy } = sheet;
     const ink = sheet.palette.ink;
     const serif = FONTS.serif;
     const cx = sheet.width / 2;
@@ -151,17 +151,87 @@ export default {
 
     // ——— the dialogue ———
     y = sheet.snap(y + baseline * 2);
-    const turns = rng.int(2, 4);
     const bodySize = 15;
-    const speakers = [authority, other];
+    /* différance: from 0.3 the speaker's name slips one letter from the
+     * heading — a difference visible in writing and inaudible in speech.
+     * The one who speaks is not quite the one the page names. */
+    const slip = (name) => {
+      if (/e/i.test(name)) return name.replace(/e/i, (m) => (m === 'E' ? 'A' : 'a'));
+      if (/a/i.test(name)) return name.replace(/a/i, (m) => (m === 'A' ? 'E' : 'e'));
+      return name.replace(/i/i, (m) => (m === 'I' ? 'Y' : 'y'));
+    };
+    const spoken = entropy >= 0.3 ? slip(authority) : authority;
+    const speakers = [spoken, other];
     let attribution = null;
-    for (let i = 0; i < turns; i++) {
-      const frag = source.fragment(rng, { minWords: 3, maxWords: 16 });
-      if (!attribution) attribution = frag.attribution;
-      else if (i === 1 && frag.attribution !== attribution) attribution += ' · ' + frag.attribution;
-      const speaker = speakers[i % 2];
+    const turnText = (frag) => {
       let text = frag.text.replace(/[.;,:]$/, '.');
       if (!/[.!?…]$/.test(text)) text += '.';
+      return text;
+    };
+    const noteAttribution = (frag, i) => {
+      if (!attribution) attribution = frag.attribution;
+      else if (i === 1 && frag.attribution !== attribution) attribution += ' · ' + frag.attribution;
+    };
+
+    if (entropy >= 0.7) {
+      /* the Glas page: the dialogue splits into two columns that run
+       * independently — the authority on the left, the other on the
+       * right — neither answering the other. One judas window in the
+       * left column lets three words of the right one in. */
+      const turns = rng.int(3, 5);
+      const gutter = baseline * 2;
+      const colW = (box.w * 0.84 - gutter) / 2;
+      const xL = box.x + box.w * 0.08;
+      const xR = xL + colW + gutter;
+      const yStart = y;
+      const floor = box.y + box.h - baseline * 2;
+      let yL = y;
+      let yR = y;
+      const rightWords = [];
+      for (let i = 0; i < turns; i++) {
+        const frag = source.fragment(rng, { minWords: 3, maxWords: 16 });
+        noteAttribution(frag, i);
+        const text = turnText(frag);
+        const left = i % 2 === 0;
+        const yy = left ? yL : yR;
+        if (yy > floor - baseline * 3) continue;
+        const x = left ? xL : xR;
+        nodes.push(smallCapsText((left ? spoken : other).toUpperCase() + '.', {
+          x, y: yy, size: bodySize * 0.86, trackingEm: 0.1, family: serif, fill: ink,
+        }));
+        const blk = justifiedBlock(text, {
+          x, y: yy + baseline, width: colW, size: bodySize, leading: baseline, family: serif, fill: ink,
+        });
+        nodes.push(...blk.nodes);
+        if (!left) rightWords.push(...text.split(/\s+/));
+        const next = yy + baseline + blk.height + baseline * 0.5;
+        if (left) yL = next; else yR = next;
+      }
+      if (rightWords.length >= 3 && yL - yStart > baseline * 4) {
+        const wi = rng.int(0, rightWords.length - 3);
+        const words3 = rightWords.slice(wi, wi + 3).join(' ').replace(/[.,;:!?]$/, '');
+        const ww = colW * 0.4;
+        const wh = baseline * 2;
+        const wx = xL + colW * 0.3;
+        const wy = yStart + (yL - yStart) * 0.55 - wh / 2;
+        nodes.push(el('rect', {
+          x: r2(wx), y: r2(wy), width: r2(ww), height: r2(wh),
+          fill: sheet.palette.paper, stroke: ink, 'stroke-width': 0.7,
+        }));
+        nodes.push(textEl(words3, {
+          x: wx + ww / 2, y: wy + wh / 2 + bodySize * 0.35, size: bodySize,
+          family: serif, style: 'italic', fill: ink, anchor: 'middle',
+        }));
+      }
+      y = Math.max(yL, yR);
+    }
+
+    const turns = entropy >= 0.7 ? 0 : rng.int(2, 4);
+    for (let i = 0; i < turns; i++) {
+      const frag = source.fragment(rng, { minWords: 3, maxWords: 16 });
+      noteAttribution(frag, i);
+      const speaker = speakers[i % 2];
+      const text = turnText(frag);
 
       // speaker in letterspaced small caps, then the line, book-style
       const spName = speaker.toUpperCase() + '.';
@@ -195,16 +265,24 @@ export default {
       if (y > box.y + box.h - baseline * 4) break;
     }
 
-    // ——— the moral, if any ———
-    if (rng.chance(0.6)) {
+    // ——— the moral: none on the Glas page; from 0.3 it denies the epigraph ———
+    const morals = [
+      'This is generally regarded as progress.',
+      'The remainder is exercise for the dead.',
+      'No reply is recorded.',
+      'The manuscript breaks off here, relieved.',
+      'Later editors supplied the moral, and it was wrong.',
+    ];
+    const denials = [
+      `The doctrine of ${word1} was never his; the editors regret the epigraph.`,
+      `Later hands deny he ever reached ${word2}.`,
+      `The biographers, consulted again, withdraw the ${word1}.`,
+      'He was born, if at all, elsewhere.',
+      'Nothing above should be taken as having been said.',
+    ];
+    if (entropy < 0.7 && (entropy >= 0.3 || rng.chance(0.6))) {
       y = sheet.snap(Math.min(y + baseline * 1.5, box.y + box.h - baseline));
-      const moral = rng.pick([
-        'This is generally regarded as progress.',
-        'The remainder is exercise for the dead.',
-        'No reply is recorded.',
-        'The manuscript breaks off here, relieved.',
-        'Later editors supplied the moral, and it was wrong.',
-      ]);
+      const moral = rng.pick(entropy >= 0.3 ? denials : morals);
       nodes.push(textEl(moral, {
         x: cx, y, size: 12, family: serif, style: 'italic', fill: ink, anchor: 'middle', opacity: 0.9,
       }));

@@ -153,9 +153,10 @@ for (const id of ENTROPY_ENGINES) {
   for (const seed of seeds.slice(0, 4)) {
     const lo = render(seed, engine, 'corpus', '', false, null, 0).xml;
     const hi = render(seed, engine, 'corpus', '', false, null, 1).xml;
-    if (lo === hi) console.warn(`WARN entropy-insensitive: ${id}/${seed}`);
+    if (lo === hi) { console.error(`FAIL entropy-insensitive: ${id}/${seed}`); failures++; }
   }
 }
+console.log(`ok  entropy moves ${ENTROPY_ENGINES.length} once-deaf engines`);
 
 // forced hybrid across seeds (engines may or may not pair; must not throw)
 for (const engine of ENGINES) {

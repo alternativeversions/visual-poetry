@@ -33,7 +33,7 @@
 **Interfaces:**
 - Produces: nothing consumed later. Persisted flag key: `typestract-local`, value `'1'`.
 
-- [ ] **Step 1: Gate the probe**
+- [x] **Step 1: Gate the probe**
 
 Replace the block in `corpus.js` with:
 
@@ -58,7 +58,7 @@ if (wantsLocal) {
 }
 ```
 
-- [ ] **Step 2: Persist the flag in `readURL`**
+- [x] **Step 2: Persist the flag in `readURL`**
 
 After the `?ai=` block add:
 
@@ -73,15 +73,15 @@ After the `?ai=` block add:
   }
 ```
 
-- [ ] **Step 3: README**
+- [x] **Step 3: README**
 
 Replace the "probes for this file on every boot … harmless and expected" sentences with: "The site probes for it only when told to: open the page once with `?local=1` and the choice is remembered in this browser (`?local=0` forgets it). With the flag off, nothing is requested and the console stays clean."
 
-- [ ] **Step 4: Verify**
+- [x] **Step 4: Verify**
 
 `node tools/smoke.mjs` green. Headless Chrome on `http://localhost:8765/` with `--enable-logging=stderr` shows no `corpus.local.js` line; with `/?local=1` it shows the 404.
 
-- [ ] **Step 5: Commit** — "the local corpus is probed only when asked"
+- [x] **Step 5: Commit** — "the local corpus is probed only when asked"
 
 ---
 
@@ -94,7 +94,7 @@ Replace the "probes for this file on every boot … harmless and expected" sente
 **Interfaces:**
 - Produces: hash keys `e`, `paper`, `text`; constant `TEXT_CAP = 4000`.
 
-- [ ] **Step 1: `readURL`**
+- [x] **Step 1: `readURL`**
 
 After `state.hybrid = …` add:
 
@@ -112,7 +112,7 @@ After `state.hybrid = …` add:
 
 with `const TEXT_CAP = 4000;` above `readURL`.
 
-- [ ] **Step 2: `writeURL`**
+- [x] **Step 2: `writeURL`**
 
 After `if (state.hybrid) h.set('hybrid', '1');` add:
 
@@ -125,7 +125,7 @@ After `if (state.hybrid) h.set('hybrid', '1');` add:
   }
 ```
 
-- [ ] **Step 3: Boot sync**
+- [x] **Step 3: Boot sync**
 
 Replace the boot block's control sync with:
 
@@ -144,13 +144,13 @@ document.getElementById('paper-mode').value = state.paperMode;
 
 (The type select is already synced inside `wire()`; check, and leave it.)
 
-- [ ] **Step 4: README** — extend the Keys paragraph: "The hash also carries the entropy (`e`), the paper (`paper`) and, for your own words, the text itself (`text`, up to 4,000 characters), so a link reproduces the sheet exactly."
+- [x] **Step 4: README** — extend the Keys paragraph: "The hash also carries the entropy (`e`), the paper (`paper`) and, for your own words, the text itself (`text`, up to 4,000 characters), so a link reproduces the sheet exactly."
 
-- [ ] **Step 5: Verify**
+- [x] **Step 5: Verify**
 
 Smoke green. Browser: open `#seed=8f3a21c9&engine=mesostic&e=0.9&paper=cool&text=the%20rain%20it%20raineth%20every%20day` — slider at 90 and readout 0.90, paper select "cool", drawer open with the text, radio on "your own words", colophon says "text: user text". Move the slider: hash gains a new `e`.
 
-- [ ] **Step 6: Commit** — "share links carry the whole sheet"
+- [x] **Step 6: Commit** — "share links carry the whole sheet"
 
 ---
 
@@ -162,9 +162,9 @@ Smoke green. Browser: open `#seed=8f3a21c9&engine=mesostic&e=0.9&paper=cool&text
 **Interfaces:**
 - Produces: `render(seed, engine, mode, userText, hybrid, pairing, entropy = 0.5)`; a constant `ENTROPY_ENGINES = ['diagram', 'revisedPhilosophy', 'gloss', 'technopaegnia']` and the check that they differ at 0 and 1. **This check fails until Tasks 8–11 land**, so it is added as a *warning* here (`console.warn('WARN entropy-insensitive: …')`) and promoted to a failure in Task 11.
 
-- [ ] **Step 1:** add `entropy = 0.5` as the last parameter of `render` and pass it to `makeSheet`.
+- [x] **Step 1:** add `entropy = 0.5` as the last parameter of `render` and pass it to `makeSheet`.
 
-- [ ] **Step 2:** after the main loop add:
+- [x] **Step 2:** after the main loop add:
 
 ```js
 // the slider must move every engine at least a little, and these four
@@ -195,7 +195,7 @@ for (const id of ENTROPY_ENGINES) {
 console.log('ok  entropy ends (0 and 1) render clean');
 ```
 
-- [ ] **Step 3:** run; expect green with four engines' WARN lines. Commit — "smoke renders both ends of the slider"
+- [x] **Step 3:** run; expect green with four engines' WARN lines. Commit — "smoke renders both ends of the slider"
 
 ---
 
@@ -207,7 +207,7 @@ console.log('ok  entropy ends (0 and 1) render clean');
 **Interfaces:**
 - Consumes: `measure`, `textOnPath`, `smallCapsText` (returns node with `_width`).
 
-- [ ] **Step 1: Sea name**
+- [x] **Step 1: Sea name**
 
 Replace the sea block with:
 
@@ -244,11 +244,11 @@ Replace the sea block with:
 
 (`textOnPath` must accept `startOffset` as a percentage string; it does — calligramme uses it.)
 
-- [ ] **Step 2: Label collision pass**
+- [x] **Step 2: Label collision pass**
 
 Replace the `for (const s2 of spts)` label loop with a two-stage pass: compute each label's rectangle (`x: s2.x + 7, y: s2.y - 8, w: label._width, h: 12`), the sea band `{ x: seaX0, y: seaMidY - seaSize, w: seaX1 - seaX0, h: seaSize * 1.4 * seaLines.length }`, and a helper `hits(a, b)` for rectangle overlap. For each label in order: if it overlaps any earlier label's final rectangle or the sea band, flip to the left (`x: s2.x - 7 - label._width`); if it still overlaps, step `y` up by 16 up to three times. Then push marker circles and the label at its final position (`transform` for the flipped case, as the existing right-margin flip does). The existing right-margin flip stays as the first rule.
 
-- [ ] **Step 3: Verify** — smoke green; proofs at `deadbeef`/`8f3a21c9`, e=0.5 show the sea name inside the neatline and no label over another. Commit — "tendre: the sea is named to fit, and no settlement prints over another"
+- [x] **Step 3: Verify** — smoke green; proofs at `deadbeef`/`8f3a21c9`, e=0.5 show the sea name inside the neatline and no label over another. Commit — "tendre: the sea is named to fit, and no settlement prints over another"
 
 ---
 
@@ -257,9 +257,9 @@ Replace the `for (const s2 of spts)` label loop with a two-stage pass: compute e
 **Files:**
 - Modify: `src/engines/calligramme.js:55-107` (rain mode)
 
-- [ ] **Step 1:** In rain mode: `const lane = (box.w * 0.92) / threads;` `const amp = Math.min(8 + entropy * 42, lane * 0.32);` lean per thread `lean * rng.range(0.85, 1)`; `const len = box.h * rng.range(0.86, 0.98);`.
+- [x] **Step 1:** In rain mode: `const lane = (box.w * 0.92) / threads;` `const amp = Math.min(8 + entropy * 42, lane * 0.32);` lean per thread `lean * rng.range(0.85, 1)`; `const len = box.h * rng.range(0.86, 0.98);`.
 
-- [ ] **Step 2:** Build each thread's text to length. Before the loop: `let pool = phrases.slice(); let spare = null;` Inside, for thread `i`:
+- [x] **Step 2:** Build each thread's text to length. Before the loop: `let pool = phrases.slice(); let spare = null;` Inside, for thread `i`:
 
 ```js
         const size = rng.range(11.5, 14.5);
@@ -277,7 +277,7 @@ Replace the `for (const s2 of spts)` label loop with a two-stage pass: compute e
 
 then `textOnPath(phrase, d, defs, { ...tOpts, fill, startOffset: '0%' })` — note `size` and `tracking` are drawn *before* the pour, so their draw order is stable per thread. Import `measure` from `../typography.js`.
 
-- [ ] **Step 3:** Verify: smoke green; proofs at both seeds show five threads, none crossing, each running most of the page. Commit — "calligramme: the rain falls in lanes, the height of the page"
+- [x] **Step 3:** Verify: smoke green; proofs at both seeds show five threads, none crossing, each running most of the page. Commit — "calligramme: the rain falls in lanes, the height of the page"
 
 ---
 
@@ -287,9 +287,9 @@ then `textOnPath(phrase, d, defs, { ...tOpts, fill, startOffset: '0%' })` — no
 - Modify: `src/engines/aria.js:51-60` (`phrasesOf`), `:75-80` (phrases)
 - Modify: `src/engines/mesostic.js:59-98`
 
-- [ ] **Step 1 (aria):** In `phrasesOf`, after the punctuation split, if `parts.length < want`, split the longest parts by words until `want` is reached (loop: take the part with most words, split it in half at a word boundary, repeat while `parts.length < want` and the longest part has ≥ 4 words). In `generate`: `let phrases = phrasesOf(frag.text, rng.int(4, 6)); if (phrases.length < 4) { const more = source.fragment(rng, { minWords: 8, maxWords: 26 }); phrases = phrases.concat(phrasesOf(more.text, 4 - phrases.length)); }`.
+- [x] **Step 1 (aria):** In `phrasesOf`, after the punctuation split, if `parts.length < want`, split the longest parts by words until `want` is reached (loop: take the part with most words, split it in half at a word boundary, repeat while `parts.length < want` and the longest part has ≥ 4 words). In `generate`: `let phrases = phrasesOf(frag.text, rng.int(4, 6)); if (phrases.length < 4) { const more = source.fragment(rng, { minWords: 8, maxWords: 26 }); phrases = phrases.concat(phrasesOf(more.text, 4 - phrases.length)); }`.
 
-- [ ] **Step 2 (mesostic):** after `rows` are built, before `y0`:
+- [x] **Step 2 (mesostic):** after `rows` are built, before `y0`:
 
 ```js
     /* the column should command the sheet: scale the type up, no draws */
@@ -303,7 +303,7 @@ then `textOnPath(phrase, d, defs, { ...tOpts, fill, startOffset: '0%' })` — no
 
 and use `bodySize`, `spineSz`, `leadPx` in the render loop in place of `size`, `spineSize`, `lead` (change `const size = 15` to `let`-free by renaming; keep `size` for the row-building measures untouched).
 
-- [ ] **Step 3:** Verify: smoke green; proofs. Commit — "aria and mesostic fill the sheet"
+- [x] **Step 3:** Verify: smoke green; proofs. Commit — "aria and mesostic fill the sheet"
 
 ---
 
@@ -312,7 +312,7 @@ and use `bodySize`, `spineSz`, `leadPx` in the render loop in place of `size`, `
 **Files:**
 - Modify: `src/engines/tendre.js:40-42` (phrases), `:122-125` (settlements)
 
-- [ ] **Step 1:** After `const phrases = phrasesOf(frag.text, 9);`:
+- [x] **Step 1:** After `const phrases = phrasesOf(frag.text, 9);`:
 
 ```js
     /* a country wants settlements: pull further fragments until eight
@@ -329,7 +329,7 @@ and use `bodySize`, `spineSz`, `leadPx` in the render loop in place of `size`, `
 
 and change `.slice(0, 6)` to `.slice(0, wantTowns)`. `longest`, `seaPhrase` and `lastPhrase` are computed after this block so they see the enlarged list; keep `lastPhrase` as the *first* fragment's last phrase by capturing `const lastPhrase = phrasesOf(frag.text, 9).slice(-1)[0]` before pulling (the terres inconnues line stays the poem's own ending).
 
-- [ ] **Step 2:** Verify smoke; proofs show 8–12 towns, labels clear (Task 4's pass). Commit — "tendre: a country of eight to twelve settlements"
+- [x] **Step 2:** Verify smoke; proofs show 8–12 towns, labels clear (Task 4's pass). Commit — "tendre: a country of eight to twelve settlements"
 
 ---
 
@@ -338,7 +338,7 @@ and change `.slice(0, 6)` to `.slice(0, wantTowns)`. `longest`, `seaPhrase` and 
 **Files:**
 - Modify: `src/engines/technopaegnia.js:143-207`
 
-- [ ] **Step 1:** After `gatherWords`, when `entropy >= 0.6 && !asemicFill`:
+- [x] **Step 1:** After `gatherWords`, when `entropy >= 0.6 && !asemicFill`:
 
 ```js
     let contrary = null;
@@ -354,11 +354,11 @@ and change `.slice(0, 6)` to `.slice(0, wantTowns)`. `longest`, `seaPhrase` and 
 
 (`gatherWords` returns `{ words, attribution }`; extend it to also return `mood` from the first fragment it pulls — read the function, it is above `generate`.)
 
-- [ ] **Step 2:** Make `fillLine(budget, size, q = queue)` take its queue as a parameter. In the pour loop, for line index `n` (counting across blocks): `const useB = contrary && n % 2 === 1;` `const text = fillLine(budget, size, useB ? contrary.queue : queue);` and when `useB`, render with `style: 'italic', fill: sheet.palette.accent || sheet.palette.ink, opacity: sheet.palette.accent ? 1 : 0.7`. When the contrary queue runs dry, fall back to the main queue for that line.
+- [x] **Step 2:** Make `fillLine(budget, size, q = queue)` take its queue as a parameter. In the pour loop, for line index `n` (counting across blocks): `const useB = contrary && n % 2 === 1;` `const text = fillLine(budget, size, useB ? contrary.queue : queue);` and when `useB`, render with `style: 'italic', fill: sheet.palette.accent || sheet.palette.ink, opacity: sheet.palette.accent ? 1 : 0.7`. When the contrary queue runs dry, fall back to the main queue for that line.
 
-- [ ] **Step 3:** Attribution: `contrary && contrary.attribution !== attribution ? \`${attribution} × ${contrary.attribution}\` : attribution`. Title unchanged.
+- [x] **Step 3:** Attribution: `contrary && contrary.attribution !== attribution ? \`${attribution} × ${contrary.attribution}\` : attribution`. Title unchanged.
 
-- [ ] **Step 4:** Verify: smoke green; the WARN for technopaegnia disappears; proofs at e=0, 0.5, 1. Commit — "technopaegnia: above 0.6 a contrary text pours through the same shape"
+- [x] **Step 4:** Verify: smoke green; the WARN for technopaegnia disappears; proofs at e=0, 0.5, 1. Commit — "technopaegnia: above 0.6 a contrary text pours through the same shape"
 
 ---
 
@@ -367,11 +367,11 @@ and change `.slice(0, 6)` to `.slice(0, wantTowns)`. `longest`, `seaPhrase` and 
 **Files:**
 - Modify: `src/engines/gloss.js:38, 147-150, 158-196, 200-215`
 
-- [ ] **Step 1:** Stand-off: `const closeIn = entropy > 0.5 ? Math.min(1, (entropy - 0.5) / 0.35) : 0; const standoff = 26 - closeIn * 40;` and use `standoff` in `innerW` and `outerX`.
+- [x] **Step 1:** Stand-off: `const closeIn = entropy > 0.5 ? Math.min(1, (entropy - 0.5) / 0.35) : 0; const standoff = 26 - closeIn * 40;` and use `standoff` in `innerW` and `outerX`.
 
-- [ ] **Step 2:** Trail: in `renderGloss`, `const trailFrac = 0.75 - entropy * 0.4; const cut = opts.trail ? Math.max(1, Math.round(lines.length * trailFrac)) : fit;` — this replaces the `rng.int(2, 4)` draw, so remove it (draw count changes; accepted).
+- [x] **Step 2:** Trail: in `renderGloss`, `const trailFrac = 0.75 - entropy * 0.4; const cut = opts.trail ? Math.max(1, Math.round(lines.length * trailFrac)) : fit;` — this replaces the `rng.int(2, 4)` draw, so remove it (draw count changes; accepted).
 
-- [ ] **Step 3:** Overprint above 0.85, after the four `fillColumn` calls:
+- [x] **Step 3:** Overprint above 0.85, after the four `fillColumn` calls:
 
 ```js
     /* the commentary prints over the text it comments on */
@@ -383,7 +383,7 @@ and change `.slice(0, 6)` to `.slice(0, wantTowns)`. `longest`, `seaPhrase` and 
     }
 ```
 
-- [ ] **Step 4:** Verify: smoke green, WARN gone for gloss; proofs at 0, 0.5, 1. Commit — "gloss: the voices close in with entropy, and print over the text at the top"
+- [x] **Step 4:** Verify: smoke green, WARN gone for gloss; proofs at 0, 0.5, 1. Commit — "gloss: the voices close in with entropy, and print over the text at the top"
 
 ---
 
@@ -394,7 +394,7 @@ and change `.slice(0, 6)` to `.slice(0, wantTowns)`. `longest`, `seaPhrase` and 
 
 The spec names a `placeLabel` helper; nine scaffolds with ~35 label sites make a post-pass over the scaffold's nodes the smaller change with the same effect. It runs on the scaffold output only, before the crossbreed and footnote nodes are added, so those never drift.
 
-- [ ] **Step 1:** Add above `export default`:
+- [x] **Step 1:** Add above `export default`:
 
 ```js
 /* Above 0.4 the labels come unpinned: each anchored <text> drifts by a
@@ -428,9 +428,9 @@ function unpin(nodes, rng, sheet) {
 
 `line` and `r2` are already imported. Call it in `generate`: `let nodes = unpin(scaffold.fn(rng, sheet, texts, defs), rng, sheet);` (make `nodes` a `let`).
 
-- [ ] **Step 2:** Footnote orphan: build the `notes` array first; `if (sheet.entropy > 0.85) notes[rng.int(0, notes.length - 1)].stars = '';` then in `footnotes`, print `n.stars ? \`${n.stars} ${n.text}\` : n.text`.
+- [x] **Step 2:** Footnote orphan: build the `notes` array first; `if (sheet.entropy > 0.85) notes[rng.int(0, notes.length - 1)].stars = '';` then in `footnotes`, print `n.stars ? \`${n.stars} ${n.text}\` : n.text`.
 
-- [ ] **Step 3:** Verify: smoke green (the shim's `VEl` has `children`, `getAttribute`, `setAttribute`, `name` — confirm `walk` finds `<text>` nodes there: add a temporary `console.log` count, then remove). WARN gone for diagram. Proofs at 0, 0.5, 1 for two seeds. Commit — "diagram: above 0.4 the labels come unpinned, on leaders"
+- [x] **Step 3:** Verify: smoke green (the shim's `VEl` has `children`, `getAttribute`, `setAttribute`, `name` — confirm `walk` finds `<text>` nodes there: add a temporary `console.log` count, then remove). WARN gone for diagram. Proofs at 0, 0.5, 1 for two seeds. Commit — "diagram: above 0.4 the labels come unpinned, on leaders"
 
 ---
 
@@ -440,7 +440,7 @@ function unpin(nodes, rng, sheet) {
 - Modify: `src/engines/revisedPhilosophy.js:100-219`
 - Modify: `tools/smoke.mjs` (promote WARN to FAIL)
 
-- [ ] **Step 1: différance.** Above the dialogue:
+- [x] **Step 1: différance.** Above the dialogue:
 
 ```js
     /* différance: one letter off, visible in writing, inaudible in speech */
@@ -454,7 +454,7 @@ function unpin(nodes, rng, sheet) {
 
 and `const speakers = [spoken, other];`. Destructure `entropy` from `sheet`.
 
-- [ ] **Step 2: the contradiction (0.3–0.7).** Replace the moral block's condition with `if (entropy < 0.7 && (entropy >= 0.3 || rng.chance(0.6)))` and choose the pool by band:
+- [x] **Step 2: the contradiction (0.3–0.7).** Replace the moral block's condition with `if (entropy < 0.7 && (entropy >= 0.3 || rng.chance(0.6)))` and choose the pool by band:
 
 ```js
       const denials = [
@@ -469,7 +469,7 @@ and `const speakers = [spoken, other];`. Destructure `entropy` from `sheet`.
 
 (`morals` is the existing array, hoisted out of the `if`.)
 
-- [ ] **Step 3: the Glas page (≥ 0.7).** Wrap the existing dialogue loop in `if (entropy < 0.7) { … } else { glas(); }` where the else branch:
+- [x] **Step 3: the Glas page (≥ 0.7).** Wrap the existing dialogue loop in `if (entropy < 0.7) { … } else { glas(); }` where the else branch:
 
 ```js
       const turns = rng.int(3, 5);
@@ -513,11 +513,11 @@ and `const speakers = [spoken, other];`. Destructure `entropy` from `sheet`.
 
 No moral in this band (Step 2's condition already excludes it).
 
-- [ ] **Step 4: promote the smoke check.** In `tools/smoke.mjs`, change the `console.warn('WARN entropy-insensitive…')` line to `console.error(\`FAIL entropy-insensitive: ${id}/${seed}\`); failures++;` and the log line to `ok  entropy moves ${ENTROPY_ENGINES.length} once-deaf engines`.
+- [x] **Step 4: promote the smoke check.** In `tools/smoke.mjs`, change the `console.warn('WARN entropy-insensitive…')` line to `console.error(\`FAIL entropy-insensitive: ${id}/${seed}\`); failures++;` and the log line to `ok  entropy moves ${ENTROPY_ENGINES.length} once-deaf engines`.
 
-- [ ] **Step 5: README.** In the lineage paragraph for Grandbois (find "Revised Poetry" in README.md) add one sentence: "Push the entropy up and the page is revised again: the speaker's name slips one letter from the heading (différance), the moral denies the epigraph, and at the top the dialogue splits into two columns that argue past each other, Glas-fashion, with a judas window letting three words across."
+- [x] **Step 5: README.** In the lineage paragraph for Grandbois (find "Revised Poetry" in README.md) add one sentence: "Push the entropy up and the page is revised again: the speaker's name slips one letter from the heading (différance), the moral denies the epigraph, and at the top the dialogue splits into two columns that argue past each other, Glas-fashion, with a judas window letting three words across."
 
-- [ ] **Step 6: Verify** — smoke fully green with no WARN; proofs of revisedPhilosophy at 0, 0.5, 0.9 for both seeds; the window sits inside the left column; nothing runs past the floor. Commit — "revised philosophy: différance, a denial, and a Glas page at the top of the slider"
+- [x] **Step 6: Verify** — smoke fully green with no WARN; proofs of revisedPhilosophy at 0, 0.5, 0.9 for both seeds; the window sits inside the left column; nothing runs past the floor. Commit — "revised philosophy: différance, a denial, and a Glas page at the top of the slider"
 
 ---
 

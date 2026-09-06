@@ -1,6 +1,6 @@
 # Section one — keeping the promises the README makes
 
-**Date**: 2026-09-05 · **Status**: approved design · **Parent**: the
+**Date**: 2026-09-05 · **Status**: implemented 2026-09-05 · **Parent**: the
 [second-edition proposal](2026-09-05-second-edition-proposal.md), §1
 
 ## Scope

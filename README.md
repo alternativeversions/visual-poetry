@@ -329,7 +329,11 @@ epigraphs, dialogue in decorum. The `revisedPhilosophy` engine builds the
 running head, folio, letterspaced small-caps authority (PARMENIDES, or
 THE PHOTOCOPIER), a justified italic epigraph recombined from apocryphal
 clauses, and a short dialogue from the text source. It is the engine that
-proves the app can whisper.
+proves the app can whisper. Push the entropy up and the page is revised
+again: the speaker's name slips one letter from the heading
+(*différance*), the moral denies the epigraph, and at the top the
+dialogue splits into two columns that argue past each other,
+*Glas*-fashion, with a judas window letting three words across.
 
 ### The anthologies
 
