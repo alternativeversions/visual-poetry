@@ -127,10 +127,11 @@ Olivetti Lettera 22 from 1963; Henri Chopin's dactylopoèmes made the
 typewriter percussive; Bob Cobbing ran Writers Forum (1963–) and printed
 noise itself on the duplicator; Robert Lax built vertical minimalisms;
 Emmett Williams, Edwin Morgan, and Dick Higgins carried the international
-network. The `typestract` engine drives the poem's own letters, ordered
-by ink density, through field functions on a strict monospace grid —
-black ribbon and red — with overstrike, platen slip, and the occasional
-second pass rotated 90°.
+network. The `typestract` engine sets one to three figures — lozenge,
+column, annulus, wave band, diagonal bar — on a white monospace grid,
+each typed from two or three of the poem's letters, black ribbon and red,
+with platen slip; overstrike is a rare event, and only at the top of the
+entropy slider does the sheet fill edge to edge, Chopin-fashion.
 
 **The graphic score.** John Cage's *Aria* (1958) scored a voice in
 colored gesture and scattered words; Cornelius Cardew's *Treatise*

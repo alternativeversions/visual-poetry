@@ -1,6 +1,6 @@
 # The weak engines — calligramme, technopaegnia, typestract
 
-**Date**: 2026-09-06 · **Status**: approved design · **Parent**: the
+**Date**: 2026-09-06 · **Status**: implemented 2026-09-06 · **Parent**: the
 [second-edition proposal](2026-09-05-second-edition-proposal.md), §3
 
 ## Scope
@@ -141,9 +141,12 @@ the current `${fieldKind} field: …` title.
 ### Coverage check in smoke
 
 For `typestract` at entropy 0.2 over six seeds, count struck cells (non-space
-characters across the row `<text>` nodes of the main pass) against
-`cols · rows`. The ratio must lie in `[0.03, 0.30]`: white space is the
-material, but the sheet is not empty. At entropy 1.0 there is no bound.
+characters across the row `<text>` nodes) against `cols · rows`, which the
+main group reports in a `data-grid` attribute. The ratio must lie in
+`[0.02, 0.30]`: white space is the material, but the sheet is not empty.
+(Inside a figure only the faintest tenth of the field is blank, so the
+silhouette holds; the floor was lowered from 0.03 to admit a single thin
+column.) At entropy 1.0 there is no bound.
 
 ## Testing
 

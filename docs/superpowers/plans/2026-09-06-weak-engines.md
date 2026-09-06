@@ -27,11 +27,11 @@
 - `polyLen(pts)` → number: sum of segment lengths × 1.05.
 - `fitToPath(rng, source, pool, seed, lengthPx, opts, want = 0.9)` → `{ text, pool }`: appends phrases from `pool` (refilling from `source.fragment(rng, {minWords: 8, maxWords: 24})`, at most 40 appends, recording new attributions in a file-local `atts` array) until `measure(text, opts) ≥ lengthPx · want`.
 
-- [ ] **Step 1:** Add the helpers above `export default`; `atts` is created in `generate` and passed in, or closed over via a small factory — keep it simple: `generate` declares `const atts = [frag.attribution]` and `fitToPath` takes `atts` as a parameter.
-- [ ] **Step 2 (fountain):** replace the per-jet `startOffset` scatter with `fitToPath` to `polyLen(pts)` at `{ size, family: FONTS.serif, style: 'italic', tracking: size * 0.08 }`, `startOffset: '0%'`. The pool line: `fitToPath` to the quadratic's length (chord + 8/3·s²/chord, s = 30) at `{ size: 13, family: FONTS.serif, tracking: 1.2 }`, `startOffset: '0%'`.
-- [ ] **Step 3 (ocean):** spokes: `fitToPath` to `(rMax − r0) · 0.92` at `{ size, family: FONTS.serif, tracking: 0.6 }`, starting the pool for each spoke as the cycled word slice it uses today (so spokes still begin at different words). Rings: `fitToPath` to `2π·r·sweep · 0.95`, `startOffset: '0%'`.
-- [ ] **Step 4:** attribution: `[...new Set(atts)].slice(0, 2).join(' · ')`.
-- [ ] **Step 5:** smoke green; proofs: fountain at `deadbeef`, `8f3a21c9`; ocean at `cafe1234`, `1234abcd`; e=0.5 and 0.9. Commit — "calligramme: the fountain and the ocean fill their paths".
+- [x] **Step 1:** Add the helpers above `export default`; `atts` is created in `generate` and passed in, or closed over via a small factory — keep it simple: `generate` declares `const atts = [frag.attribution]` and `fitToPath` takes `atts` as a parameter.
+- [x] **Step 2 (fountain):** replace the per-jet `startOffset` scatter with `fitToPath` to `polyLen(pts)` at `{ size, family: FONTS.serif, style: 'italic', tracking: size * 0.08 }`, `startOffset: '0%'`. The pool line: `fitToPath` to the quadratic's length (chord + 8/3·s²/chord, s = 30) at `{ size: 13, family: FONTS.serif, tracking: 1.2 }`, `startOffset: '0%'`.
+- [x] **Step 3 (ocean):** spokes: `fitToPath` to `(rMax − r0) · 0.92` at `{ size, family: FONTS.serif, tracking: 0.6 }`, starting the pool for each spoke as the cycled word slice it uses today (so spokes still begin at different words). Rings: `fitToPath` to `2π·r·sweep · 0.95`, `startOffset: '0%'`.
+- [x] **Step 4:** attribution: `[...new Set(atts)].slice(0, 2).join(' · ')`.
+- [x] **Step 5:** smoke green; proofs: fountain at `deadbeef`, `8f3a21c9`; ocean at `cafe1234`, `1234abcd`; e=0.5 and 0.9. Commit — "calligramme: the fountain and the ocean fill their paths".
 
 ---
 
@@ -41,7 +41,7 @@
 
 **Interfaces:** `source.fragment(r, { minWords, maxWords, mood, lang })`; fallback: filtered pool < 4 → drop `lang`; still < 4 → drop `mood`. User mode ignores both.
 
-- [ ] **Step 1:** in `source.fragment`, after `const pool = byLength(...)...`:
+- [x] **Step 1:** in `source.fragment`, after `const pool = byLength(...)...`:
 ```js
     let pool = byLength(minWords, maxWords).filter((f) => f.kind !== 'word');
     const narrow = (p, m, l) => p.filter((f) => (!m || f.mood === m) && (!l || f.lang === l));
@@ -53,7 +53,7 @@
     }
 ```
   (`pool` becomes `let`; the rest of the function is unchanged, including procedural ops.)
-- [ ] **Step 2:** smoke green (no engine passes filters yet, so output is byte-identical — confirm by rendering two engines before/after and diffing). Commit — "the text source can be asked for one mood, one language".
+- [x] **Step 2:** smoke green (no engine passes filters yet, so output is byte-identical — confirm by rendering two engines before/after and diffing). Commit — "the text source can be asked for one mood, one language".
 
 ---
 
@@ -61,9 +61,9 @@
 
 **Files:** Modify `src/engines/technopaegnia.js` (`gatherWords`, ~L68–90).
 
-- [ ] **Step 1:** `gatherWords(rng, source, budgetPx, size, { avoidMood = null, oneVoice = false } = {})`. When `oneVoice`: after the first fragment record `mood`, `lang`; every later pull passes `{ mood, lang }`; keep `const seen = new Set()` of texts; re-pull up to three times if `seen.has(frag.text)`, then accept. The main call passes `{ oneVoice: true }`; the contrary call keeps `{ avoidMood: mood }`.
-- [ ] **Step 2:** README technopaegnia paragraph: add "The shape is poured in one voice: the first fragment sets the mood and the language, and every fragment after it agrees, none repeated."
-- [ ] **Step 3:** smoke green; proofs at `8f3a21c9`, `deadbeef`, e=0.2 and 0.9. Commit — "technopaegnia: one voice poured into one shape".
+- [x] **Step 1:** `gatherWords(rng, source, budgetPx, size, { avoidMood = null, oneVoice = false } = {})`. When `oneVoice`: after the first fragment record `mood`, `lang`; every later pull passes `{ mood, lang }`; keep `const seen = new Set()` of texts; re-pull up to three times if `seen.has(frag.text)`, then accept. The main call passes `{ oneVoice: true }`; the contrary call keeps `{ avoidMood: mood }`.
+- [x] **Step 2:** README technopaegnia paragraph: add "The shape is poured in one voice: the first fragment sets the mood and the language, and every fragment after it agrees, none repeated."
+- [x] **Step 3:** smoke green; proofs at `8f3a21c9`, `deadbeef`, e=0.2 and 0.9. Commit — "technopaegnia: one voice poured into one shape".
 
 ---
 
@@ -77,12 +77,12 @@
 - `separate(figures)` — no draws; pushes centers apart until bounding boxes overlap ≤ 25 % of the smaller.
 - `cellOf(figures, u, v)` → `{ ch, red, strike }` or blank: the last figure whose mask contains `(u, v)` wins; `val = pow(field(u,v), gamma)`; `ch = ['', ...glyphs][floor(val · (glyphs.length + 1))]`; `strike = overstrikes && val > 0.96`.
 
-- [ ] **Step 1:** implement the helpers above `export default`.
-- [ ] **Step 2:** in `generate`: draw `count` by entropy (1 / 2 / `rng.int(2,3)`), then `chopin = entropy >= 0.85 && rng.chance((entropy - 0.85) / 0.15 * 0.8)`. If `chopin`, run the existing code path unchanged (move it into `chopinSheet(rng, sheet, frag, ramp)` and return). Otherwise build figures: kinds `rng.pick` without repetition, at most one `ribbon: 'red'` (`rng.chance(0.3)` on each until one is red), `overstrikes` per figure with `rng.chance(0.15 + entropy * 0.5)` and at most one below 0.7; `separate(figures)`.
-- [ ] **Step 3:** `rowText(row, y, xOffset, pass)` iterates cells with `cellOf`, building `black`, `redS`, `over` strings as today; for `pass === 'rotated'` apply `Math.pow(val, 2.6)` inside `cellOf` via a `sparse` flag.
-- [ ] **Step 4:** platen slip unchanged; rotated pass only if `entropy > 0.7 && rng.chance((entropy - 0.7) * 1.5)`, rendered through the figures.
-- [ ] **Step 5:** title `${figures.map((f) => f.kind).join(' + ')}: ${first three words}`.
-- [ ] **Step 6 (smoke):** after the entropy checks:
+- [x] **Step 1:** implement the helpers above `export default`.
+- [x] **Step 2:** in `generate`: draw `count` by entropy (1 / 2 / `rng.int(2,3)`), then `chopin = entropy >= 0.85 && rng.chance((entropy - 0.85) / 0.15 * 0.8)`. If `chopin`, run the existing code path unchanged (move it into `chopinSheet(rng, sheet, frag, ramp)` and return). Otherwise build figures: kinds `rng.pick` without repetition, at most one `ribbon: 'red'` (`rng.chance(0.3)` on each until one is red), `overstrikes` per figure with `rng.chance(0.15 + entropy * 0.5)` and at most one below 0.7; `separate(figures)`.
+- [x] **Step 3:** `rowText(row, y, xOffset, pass)` iterates cells with `cellOf`, building `black`, `redS`, `over` strings as today; for `pass === 'rotated'` apply `Math.pow(val, 2.6)` inside `cellOf` via a `sparse` flag.
+- [x] **Step 4:** platen slip unchanged; rotated pass only if `entropy > 0.7 && rng.chance((entropy - 0.7) * 1.5)`, rendered through the figures.
+- [x] **Step 5:** title `${figures.map((f) => f.kind).join(' + ')}: ${first three words}`.
+- [x] **Step 6 (smoke):** after the entropy checks:
 ```js
 // typestract at low entropy is figures on white: 3–30 % of the grid struck
 {
@@ -99,8 +99,8 @@
 }
 ```
   Note: rows are emitted only when they contain a strike, and blank leading cells are spaces inside the row string, so `cells` undercounts fully blank rows; the ratio is therefore an upper bound on true coverage and the check is conservative in the right direction. If it proves too tight, compute `cells = cols · rows` from the engine's grid by exposing them in `result.caption`-free metadata — prefer the simple version first.
-- [ ] **Step 7:** README typestract paragraph: replace "drives the poem's own letters, ordered by ink density, through field functions on a strict monospace grid — black ribbon and red — with overstrike, platen slip, and the occasional second pass rotated 90°." with "sets one to three figures — lozenge, column, annulus, wave band, diagonal bar — on a white monospace grid, each typed from two or three of the poem's letters, black ribbon and red, with platen slip; overstrike is a rare event, and only at the top of the entropy slider does the sheet fill edge to edge, Chopin-fashion."
-- [ ] **Step 8:** smoke green; proofs at `8f3a21c9`, `deadbeef`, `cafe1234` at e=0.2, 0.5, 0.9, and one at 1.0 to see the Chopin sheet. Commit — "typestract: figures on white, after dsh".
+- [x] **Step 7:** README typestract paragraph: replace "drives the poem's own letters, ordered by ink density, through field functions on a strict monospace grid — black ribbon and red — with overstrike, platen slip, and the occasional second pass rotated 90°." with "sets one to three figures — lozenge, column, annulus, wave band, diagonal bar — on a white monospace grid, each typed from two or three of the poem's letters, black ribbon and red, with platen slip; overstrike is a rare event, and only at the top of the entropy slider does the sheet fill edge to edge, Chopin-fashion."
+- [x] **Step 8:** smoke green; proofs at `8f3a21c9`, `deadbeef`, `cafe1234` at e=0.2, 0.5, 0.9, and one at 1.0 to see the Chopin sheet. Commit — "typestract: figures on white, after dsh".
 
 ---
 

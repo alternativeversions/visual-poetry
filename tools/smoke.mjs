@@ -158,6 +158,21 @@ for (const id of ENTROPY_ENGINES) {
 }
 console.log(`ok  entropy moves ${ENTROPY_ENGINES.length} once-deaf engines`);
 
+// typestract at low entropy is figures on white: 2–30 % of the grid struck
+{
+  const engine = ENGINES.find((x) => x.id === 'typestract');
+  for (const seed of seeds) {
+    const xml = render(seed, engine, 'corpus', '', false, null, 0.2).xml;
+    const gm = xml.match(/data-grid="(\d+)x(\d+)"/);
+    const cells = gm ? Number(gm[1]) * Number(gm[2]) : 0;
+    const struck = [...xml.matchAll(/<text[^>]*>([^<]*)<\/text>/g)]
+      .reduce((n, m) => n + m[1].replace(/\s/g, '').length, 0);
+    const ratio = cells ? struck / cells : -1;
+    if (ratio < 0.02 || ratio > 0.30) { console.error(`FAIL typestract coverage ${ratio.toFixed(3)}: ${seed}`); failures++; }
+  }
+  console.log('ok  typestract coverage (figures on white)');
+}
+
 // forced hybrid across seeds (engines may or may not pair; must not throw)
 for (const engine of ENGINES) {
   for (const seed of seeds.slice(0, 3)) {
