@@ -23,10 +23,10 @@
 
 **Files:** Create `src/render.js`; modify `src/main.js` (remove `renderPoem` and now-unused imports, import from `./render.js`); modify `tools/smoke.mjs` (`render()` calls `renderPoem`).
 
-- [ ] Move `renderPoem` (main.js ~L106–170) and its comment into `src/render.js` with imports: `makeRng` (prng), `choosePalette` (palette), `makeSheet, setFonts, pairingFor, facesLoaded` (typography), `el, resetIds` (svg), `makeTextSource` (text/procedures), `pickEngine, sheetSizeFor, pickHybrid` (engines/index), `buildColophon` (colophon). `export function renderPoem`.
-- [ ] In `main.js`: `import { renderPoem } from './render.js';` and prune imports no longer used there (keep `randomSeed`, `TYPE_PAIRINGS`, `LEGACY_PAIRING_IDS`, `loadFonts`, `pairingFor`, `ENGINES`, `ENGINE_MAP`, export functions, aiParser functions). Run `node --check src/main.js`.
-- [ ] In smoke: `const { renderPoem } = await import('../src/render.js');` and `render(seed, engine, mode, userText, hybrid, pairing, entropy)` becomes: `const r = renderPoem({ seed, engineId: engine.id, source: mode, userText, entropy, paperMode: 'auto', typeId: (pairing || baskervillePairing).id, hybrid }); return { xml: serialize(r.svg), colophon: r.meta.colophon, title: r.meta.title };` where `baskervillePairing = TYPE_PAIRINGS.find((p) => p.id === 'baskerville') || TYPE_PAIRINGS[0]`. Note `hybrid` forced: `pickHybrid(rng, engine, force)` inside renderPoem honours it.
-- [ ] Smoke green; browser loads and renders as before. Commit — "the pure render moves to render.js".
+- [x] Move `renderPoem` (main.js ~L106–170) and its comment into `src/render.js` with imports: `makeRng` (prng), `choosePalette` (palette), `makeSheet, setFonts, pairingFor, facesLoaded` (typography), `el, resetIds` (svg), `makeTextSource` (text/procedures), `pickEngine, sheetSizeFor, pickHybrid` (engines/index), `buildColophon` (colophon). `export function renderPoem`.
+- [x] In `main.js`: `import { renderPoem } from './render.js';` and prune imports no longer used there (keep `randomSeed`, `TYPE_PAIRINGS`, `LEGACY_PAIRING_IDS`, `loadFonts`, `pairingFor`, `ENGINES`, `ENGINE_MAP`, export functions, aiParser functions). Run `node --check src/main.js`.
+- [x] In smoke: `const { renderPoem } = await import('../src/render.js');` and `render(seed, engine, mode, userText, hybrid, pairing, entropy)` becomes: `const r = renderPoem({ seed, engineId: engine.id, source: mode, userText, entropy, paperMode: 'auto', typeId: (pairing || baskervillePairing).id, hybrid }); return { xml: serialize(r.svg), colophon: r.meta.colophon, title: r.meta.title };` where `baskervillePairing = TYPE_PAIRINGS.find((p) => p.id === 'baskerville') || TYPE_PAIRINGS[0]`. Note `hybrid` forced: `pickHybrid(rng, engine, force)` inside renderPoem honours it.
+- [x] Smoke green; browser loads and renders as before. Commit — "the pure render moves to render.js".
 
 ---
 
@@ -34,8 +34,8 @@
 
 **Files:** `index.html` (markup, CSS, rail keys), `src/main.js` (state, URL, key, rail item, `renderWall`, `show`), `README.md` (keys, running).
 
-- [ ] **Markup**: inside `<main id="stage">` after `#sheet-holder`: `<div id="wall" hidden></div>`. Keys section: add `<kbd>W</kbd> the wall`.
-- [ ] **CSS** (desktop): 
+- [x] **Markup**: inside `<main id="stage">` after `#sheet-holder`: `<div id="wall" hidden></div>`. Keys section: add `<kbd>W</kbd> the wall`.
+- [x] **CSS** (desktop): 
 ```css
   #wall { flex: 1; min-height: 0; width: 100%; overflow-y: auto; display: grid;
     grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 14px; align-content: start; padding: 2px 2px 8px; }
@@ -46,9 +46,9 @@
   #wall .tile:hover figcaption { color: var(--ink); }
 ```
   Mobile block: `#wall { grid-template-columns: repeat(2, 1fr); overflow: visible; }`.
-- [ ] **State**: `view: 'sheet'` in `state`; `readURL`: `if (h.get('view') === 'wall') state.view = 'wall';`; `writeURL`: `if (state.view === 'wall') h.set('view', 'wall');`.
-- [ ] **Rail item**: in `buildEngineList`, after the engines: `mk('__wall', 'the wall', 'all twenty-five engines at this seed')` — but its click handler sets `state.view = 'wall'` and calls `show({ seed: state.seed, engineId: state.engine })`. Give `mk` an optional `onClick`. `markEngineList` marks active: the wall item when `state.view === 'wall'`, else the engine match (and in wall view no engine is marked).
-- [ ] **renderWall()**:
+- [x] **State**: `view: 'sheet'` in `state`; `readURL`: `if (h.get('view') === 'wall') state.view = 'wall';`; `writeURL`: `if (state.view === 'wall') h.set('view', 'wall');`.
+- [x] **Rail item**: in `buildEngineList`, after the engines: `mk('__wall', 'the wall', 'all twenty-five engines at this seed')` — but its click handler sets `state.view = 'wall'` and calls `show({ seed: state.seed, engineId: state.engine })`. Give `mk` an optional `onClick`. `markEngineList` marks active: the wall item when `state.view === 'wall'`, else the engine match (and in wall view no engine is marked).
+- [x] **renderWall()**:
 ```js
 function renderWall() {
   const wall = document.getElementById('wall');
@@ -69,10 +69,10 @@ function renderWall() {
   }
 }
 ```
-- [ ] **show()**: after the sheet is rendered and placed, `const onWall = state.view === 'wall'; document.getElementById('sheet-holder').hidden = onWall; document.getElementById('wall').hidden = !onWall; if (onWall) { renderWall(); colophon.textContent = wallColophon(current.meta); }`. `wallColophon(meta)` builds `№ … · the wall · seed … · twenty-five engines · set in … · year` — take the number from `meta.colophon`'s leading `№ …` token, the type credit from its `set in …` segment (split on ` · `).
-- [ ] **W key**: in the keydown handler: `else if (e.key === 'w' || e.key === 'W') { state.view = state.view === 'wall' ? 'sheet' : 'wall'; show({ seed: state.seed, engineId: state.engine }, { push: false }); }`.
-- [ ] **README**: Keys line adds `W` the wall; Running gains: "Press `W` (or pick *the wall* in the engine list) for a wall of all twenty-five engines at the current seed; click a tile to open it."
-- [ ] Verify: smoke green; `#seed=8f3a21c9&view=wall` screenshot shows 25 tiles; click behaviour via a second screenshot after navigating to the resulting hash by hand. Commit — "the wall: every engine at this seed".
+- [x] **show()**: after the sheet is rendered and placed, `const onWall = state.view === 'wall'; document.getElementById('sheet-holder').hidden = onWall; document.getElementById('wall').hidden = !onWall; if (onWall) { renderWall(); colophon.textContent = wallColophon(current.meta); }`. `wallColophon(meta)` builds `№ … · the wall · seed … · twenty-five engines · set in … · year` — take the number from `meta.colophon`'s leading `№ …` token, the type credit from its `set in …` segment (split on ` · `).
+- [x] **W key**: in the keydown handler: `else if (e.key === 'w' || e.key === 'W') { state.view = state.view === 'wall' ? 'sheet' : 'wall'; show({ seed: state.seed, engineId: state.engine }, { push: false }); }`.
+- [x] **README**: Keys line adds `W` the wall; Running gains: "Press `W` (or pick *the wall* in the engine list) for a wall of all twenty-five engines at the current seed; click a tile to open it."
+- [x] Verify: smoke green; `#seed=8f3a21c9&view=wall` screenshot shows 25 tiles; click behaviour via a second screenshot after navigating to the resulting hash by hand. Commit — "the wall: every engine at this seed".
 
 ---
 
@@ -80,7 +80,7 @@ function renderWall() {
 
 **Files:** `index.html` (CSS).
 
-- [ ] Add:
+- [x] Add:
 ```css
   @media print {
     @page { margin: 12mm; }
@@ -100,7 +100,7 @@ function renderWall() {
   }
 ```
   The `::after` reads `attr(data-colophon)` from the figcaption, so `renderWall` sets `cap.dataset.colophon` too (or move the attribute to the caption only). `show()` toggles `document.body.classList.toggle('on-wall', onWall)`.
-- [ ] Verify with headless Chrome `--print-to-pdf` for `#seed=8f3a21c9&engine=grammar` (1 page) and `#seed=8f3a21c9&view=wall` (25 pages); count pages with `grep -c "/Type /Page[^s]"` or by `mdls`/`pdfinfo` if present. README: "Print (⌘P) prints the sheet; on the wall, twenty-five pages, one engine each, colophon as the foot." Commit — "print: the sheet, or the wall as a chapbook".
+- [x] Verify with headless Chrome `--print-to-pdf` for `#seed=8f3a21c9&engine=grammar` (1 page) and `#seed=8f3a21c9&view=wall` (25 pages); count pages with `grep -c "/Type /Page[^s]"` or by `mdls`/`pdfinfo` if present. README: "Print (⌘P) prints the sheet; on the wall, twenty-five pages, one engine each, colophon as the foot." Commit — "print: the sheet, or the wall as a chapbook".
 
 ---
 
@@ -108,7 +108,7 @@ function renderWall() {
 
 **Files:** Create `src/openings.js`; modify `src/main.js` (boot); `README.md`.
 
-- [ ] `src/openings.js`:
+- [x] `src/openings.js`:
 ```js
 /* The curated openings: a dozen sheets chosen by eye. A cold visit opens
  * on one of them; every roll after that is chance. Each line says why. */
@@ -128,7 +128,7 @@ export const OPENINGS = [
 ];
 ```
   (Author's picks from this session's proofs; the review with the user may strike or add.)
-- [ ] Boot in `main.js`, after `readURL()`:
+- [x] Boot in `main.js`, after `readURL()`:
 ```js
 /* a cold visit opens on a curated sheet; everything after is chance */
 if (!location.hash && !new URLSearchParams(location.search).has('engine') && !new URLSearchParams(location.search).has('hybrid')) {
@@ -137,9 +137,9 @@ if (!location.hash && !new URLSearchParams(location.search).has('engine') && !ne
 }
 ```
   before the control sync, so the slider shows the opening's entropy. `show({ seed: state.seed || randomSeed(), engineId: state.engine })` is unchanged.
-- [ ] README (Running): "A first visit opens on one of a dozen sheets chosen by eye (`src/openings.js`); every roll after that is chance."
-- [ ] Verify: smoke green; three cold loads in headless Chrome with `--dump-dom` show `#engine-list .active` naming an opening engine, and the seed box holding its seed. Commit — "curated openings: a first visit lands on a chosen sheet".
-- [ ] **Review with the user**: render walls for ten seeds (`8f3a21c9 deadbeef cafe1234 7b9d0e2f 1234abcd 00000001 feedface 0badf00d c0ffee00 a1b2c3d4`) headlessly at 1500×2400, present them, mark the picks, amend `OPENINGS` on the user's word (one more commit if anything changes).
+- [x] README (Running): "A first visit opens on one of a dozen sheets chosen by eye (`src/openings.js`); every roll after that is chance."
+- [x] Verify: smoke green; three cold loads in headless Chrome with `--dump-dom` show `#engine-list .active` naming an opening engine, and the seed box holding its seed. Commit — "curated openings: a first visit lands on a chosen sheet".
+- [x] **Review with the user**: render walls for ten seeds (`8f3a21c9 deadbeef cafe1234 7b9d0e2f 1234abcd 00000001 feedface 0badf00d c0ffee00 a1b2c3d4`) headlessly at 1500×2400, present them, mark the picks, amend `OPENINGS` on the user's word (one more commit if anything changes).
 
 ---
 

@@ -1,6 +1,6 @@
 # The wall, and the curated openings
 
-**Date**: 2026-09-06 · **Status**: approved design · **Parent**: the
+**Date**: 2026-09-06 · **Status**: implemented 2026-09-06; openings list open to amendment · **Parent**: the
 [second-edition proposal](2026-09-05-second-edition-proposal.md), §2 (the
 exhibition wall, curated openings)
 

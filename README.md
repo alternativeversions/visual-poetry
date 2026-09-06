@@ -30,7 +30,9 @@ from disk shows the rail with an empty engine list and a notice saying so.
 session history · `W` the wall. The wall shows all twenty-five engines at
 the current seed and settings; click a tile to open that sheet. Printing
 (⌘P) gives the sheet as one page, or the wall as a twenty-five page
-chapbook, one engine to a page with its colophon as the foot. The seed lives in the URL hash; `?engine=diagram` forces
+chapbook, one engine to a page with its colophon as the foot. A first
+visit opens on one of a dozen sheets chosen by eye (`src/openings.js`);
+every roll after that is chance. The seed lives in the URL hash; `?engine=diagram` forces
 an engine, `?hybrid=1` forces crossbreed mode. The hash also carries the
 entropy (`e`), the paper (`paper`) and, for your own words, the text
 itself (`text`, up to 4,000 characters), so a link reproduces the sheet

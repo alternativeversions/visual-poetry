@@ -9,6 +9,7 @@ import { randomSeed } from './prng.js';
 import { TYPE_PAIRINGS, LEGACY_PAIRING_IDS, pairingFor, loadFonts } from './typography.js';
 import { ENGINES, ENGINE_MAP } from './engines/index.js';
 import { renderPoem } from './render.js';
+import { OPENINGS } from './openings.js';
 import { serializeSVGWithFonts, downloadSVG, downloadPNG, downloadFlattenedSVG } from './export.js';
 import { provider, requestParses, requestShapes, requestProfiles, shapeCandidates, onOracle } from './text/aiParser.js';
 
@@ -444,6 +445,16 @@ function upgradeParses() {
 
 document.getElementById('no-module')?.remove(); // we ran; drop the file:// notice
 readURL();
+/* a cold visit opens on a curated sheet; everything after is chance */
+{
+  const q = new URLSearchParams(location.search);
+  if (!location.hash && !q.has('engine') && !q.has('hybrid')) {
+    const o = OPENINGS[Math.floor(Math.random() * OPENINGS.length)];
+    state.engine = o.engine;
+    state.seed = o.seed;
+    if (o.e !== undefined) state.entropy = o.e;
+  }
+}
 wire();
 const sourceRadio = document.querySelector(`input[name="source"][value="${state.source}"]`);
 if (sourceRadio) sourceRadio.checked = true;
