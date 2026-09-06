@@ -326,6 +326,21 @@ export const CORPUS = [
   { text: 'Hinunter in der Erde Schoß, weg aus des Lichtes Reichen', attribution: 'Novalis, Hymnen an die Nacht (1800)', mood: 'cosmic', kind: 'line', lang: 'de' },
   { text: 'Ein Fichtenbaum steht einsam im Norden auf kahler Höh.', attribution: 'H. Heine, Buch der Lieder (1827)', mood: 'elegiac', kind: 'sentence', lang: 'de' },
   { text: 'Ich weiß nicht, was soll es bedeuten, daß ich so traurig bin', attribution: 'H. Heine, “Die Lorelei” (1824)', mood: 'elegiac', kind: 'line', lang: 'de' },
+  // ——— French, in the original ———
+  { text: 'Comme je descendais des Fleuves impassibles', attribution: 'A. Rimbaud, “Le Bateau ivre” (1871)', mood: 'cosmic', kind: 'line', lang: 'fr' },
+  { text: 'Ô que ma quille éclate ! Ô que j’aille à la mer !', attribution: 'A. Rimbaud, “Le Bateau ivre” (1871)', mood: 'ecstatic', kind: 'sentence', lang: 'fr' },
+  { text: 'Elle est retrouvée. Quoi ? L’Éternité. C’est la mer allée avec le soleil.', attribution: 'A. Rimbaud, “L’Éternité” (1872)', mood: 'cosmic', kind: 'sentence', lang: 'fr' },
+  { text: 'La Nature est un temple où de vivants piliers laissent parfois sortir de confuses paroles', attribution: 'C. Baudelaire, “Correspondances” (1857)', mood: 'cosmic', kind: 'line', lang: 'fr' },
+  { text: 'Les parfums, les couleurs et les sons se répondent.', attribution: 'C. Baudelaire, “Correspondances” (1857)', mood: 'cosmic', kind: 'sentence', lang: 'fr' },
+  { text: 'Quand le ciel bas et lourd pèse comme un couvercle', attribution: 'C. Baudelaire, “Spleen” (1857)', mood: 'elegiac', kind: 'line', lang: 'fr' },
+  { text: 'Ô Mort, vieux capitaine, il est temps ! levons l’ancre !', attribution: 'C. Baudelaire, “Le Voyage” (1861)', mood: 'ecstatic', kind: 'sentence', lang: 'fr' },
+  { text: 'Je suis le Ténébreux, le Veuf, l’Inconsolé', attribution: 'G. de Nerval, “El Desdichado” (1854)', mood: 'elegiac', kind: 'line', lang: 'fr' },
+  { text: 'Ma seule Étoile est morte', attribution: 'G. de Nerval, “El Desdichado” (1854)', mood: 'elegiac', kind: 'phrase', lang: 'fr' },
+  { text: 'Ah ! la belle pleine Lune, grosse comme une fortune !', attribution: 'J. Laforgue, “Complainte de la Lune en province” (1885)', mood: 'wry', kind: 'sentence', lang: 'fr' },
+  { text: 'Blocus sentimental ! Messageries du Levant !', attribution: 'J. Laforgue, “L’Hiver qui vient” (1886)', mood: 'wry', kind: 'sentence', lang: 'fr' },
+  { text: 'Ce toit tranquille, où marchent des colombes', attribution: 'P. Valéry, “Le Cimetière marin” (1920)', mood: 'still', kind: 'line', lang: 'fr' },
+  { text: 'La mer, la mer, toujours recommencée !', attribution: 'P. Valéry, “Le Cimetière marin” (1920)', mood: 'cosmic', kind: 'sentence', lang: 'fr' },
+  { text: 'Le vent se lève ! il faut tenter de vivre !', attribution: 'P. Valéry, “Le Cimetière marin” (1920)', mood: 'ecstatic', kind: 'sentence', lang: 'fr' },
 ];
 
 /* Merge a private, gitignored supplement if one exists. The probe runs
