@@ -137,6 +137,7 @@ async function show(entry, { push = true } = {}) {
   /* the wall stands in for the sheet when asked; the sheet render above
    * still feeds the seed box, the history and the gallery */
   const onWall = state.view === 'wall';
+  document.title = onWall ? `TYPESTRACT · the wall · ${state.seed}` : `TYPESTRACT · ${current.meta.title}`;
   holder.hidden = onWall;
   document.getElementById('wall').hidden = !onWall;
   document.body.classList.toggle('on-wall', onWall);
@@ -220,6 +221,21 @@ function wallColophon(meta) {
   const setIn = parts.find((p) => /^(set in|meant for)/.test(p)) || '';
   return [parts[0], 'the wall', `seed ${meta.seed}`, `${ENGINES.length === 25 ? 'twenty-five' : ENGINES.length} engines`, setIn, parts[parts.length - 1]]
     .filter(Boolean).join(' · ');
+}
+
+/* Copy the sheet's link — the hash is the whole poem. */
+function copyLink() {
+  const btn = document.getElementById('copy-link');
+  const say = (t) => { btn.textContent = t; setTimeout(() => { btn.textContent = 'copy link'; }, 1200); };
+  const fallback = () => {
+    const box = document.getElementById('seed-input');
+    box.focus();
+    box.select();
+    say('select & copy');
+  };
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(location.href).then(() => say('copied'), fallback);
+  } else fallback();
 }
 
 /* ------------------------------------------------------------------ *
@@ -364,6 +380,7 @@ function wire() {
   document.getElementById('export-png2').addEventListener('click', () => downloadPNG(current.svg, current.meta, 2));
   document.getElementById('export-png4').addEventListener('click', () => downloadPNG(current.svg, current.meta, 4));
   document.getElementById('export-flat').addEventListener('click', () => downloadFlattenedSVG(current.svg, current.meta));
+  document.getElementById('copy-link').addEventListener('click', copyLink);
 
   /* Mobile thumb bar and rotate hint. These elements are display:none on
    * desktop, so wiring them there is harmless; on a phone they stand in
@@ -384,6 +401,7 @@ function wire() {
     if (e.key === 'r' || e.key === 'R') reroll();
     else if (e.key === 'e' || e.key === 'E') cycleEngine(1);
     else if (e.key === 's' || e.key === 'S') downloadSVG(current.svg, current.meta);
+    else if (e.key === 'c' || e.key === 'C') copyLink();
     else if (e.key === 'w' || e.key === 'W') {
       state.view = state.view === 'wall' ? 'sheet' : 'wall';
       show({ seed: state.seed, engineId: state.engine }, { push: false });
