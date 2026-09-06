@@ -5,13 +5,11 @@
  * hash, so any render is shareable and reproducible.
  */
 
-import { makeRng, randomSeed } from './prng.js';
-import { choosePalette } from './palette.js';
-import { makeSheet, TYPE_PAIRINGS, LEGACY_PAIRING_IDS, setFonts, pairingFor, loadFonts, facesLoaded } from './typography.js';
-import { el, g, resetIds, NS } from './svg.js';
-import { makeTextSource } from './text/procedures.js';
-import { ENGINES, ENGINE_MAP, pickEngine, sheetSizeFor, pickHybrid } from './engines/index.js';
-import { buildColophon } from './colophon.js';
+import { randomSeed } from './prng.js';
+import { TYPE_PAIRINGS, LEGACY_PAIRING_IDS, pairingFor, loadFonts } from './typography.js';
+import { ENGINES, ENGINE_MAP } from './engines/index.js';
+import { renderPoem } from './render.js';
+import { OPENINGS } from './openings.js';
 import { serializeSVGWithFonts, downloadSVG, downloadPNG, downloadFlattenedSVG } from './export.js';
 import { provider, requestParses, requestShapes, requestProfiles, shapeCandidates, onOracle } from './text/aiParser.js';
 
@@ -28,6 +26,7 @@ const state = {
   paperMode: 'auto',
   typeId: 'chance', // type pairing, or 'chance' to let the seed choose
   hybrid: false, // forced hybrid via ?hybrid=1
+  view: 'sheet', // or 'wall': every engine at this seed
 };
 
 /* the pasted text rides in the hash — never the query, so it never
@@ -47,6 +46,7 @@ function readURL() {
     if (TYPE_PAIRINGS.some((p) => p.id === id)) state.typeId = id;
   }
   state.hybrid = q.get('hybrid') === '1' || h.get('hybrid') === '1';
+  state.view = h.get('view') === 'wall' ? 'wall' : 'sheet';
   const e = parseFloat(h.get('e'));
   if (Number.isFinite(e)) state.entropy = Math.max(0, Math.min(1, e));
   const paper = h.get('paper');
@@ -81,6 +81,7 @@ function writeURL() {
   if (state.source !== 'corpus') h.set('source', state.source);
   if (state.typeId !== 'chance') h.set('type', state.typeId);
   if (state.hybrid) h.set('hybrid', '1');
+  if (state.view === 'wall') h.set('view', 'wall');
   if (Math.abs(state.entropy - 0.5) > 0.004) h.set('e', state.entropy.toFixed(2));
   if (state.paperMode !== 'auto') h.set('paper', state.paperMode);
   if (state.source === 'user') {
@@ -98,79 +99,6 @@ let current = null; // { svg, meta, engine }
 const historyList = [];
 let historyIndex = -1;
 let rotateHintDismissed = false;
-
-/**
- * Pure render: everything derives from (seed, engineId, source, userText,
- * entropy, paperMode). Returns { svg, meta, engine }.
- */
-export function renderPoem({ seed, engineId, source, userText, entropy, paperMode, typeId, hybrid }) {
-  resetIds();
-
-  // the type pairing: pinned from the rail, or the seed's own choice
-  const pairing = pairingFor(seed, typeId);
-  setFonts(pairing);
-
-  // Independent streams so one facet's draws never perturb another's.
-  const engineRng = makeRng(seed + ':engine');
-  const engine = pickEngine(engineRng, engineId);
-  const hybridWith = pickHybrid(makeRng(seed + ':hybrid'), engine, hybrid);
-
-  const paletteRng = makeRng(seed + ':palette');
-  const palette = choosePalette(paletteRng, {
-    ...(engine.paletteOpts || {}),
-    paperMode: paperMode !== 'auto' ? paperMode : (engine.paletteOpts || {}).paperMode || 'auto',
-  });
-
-  const size = sheetSizeFor(engine);
-  const sheet = makeSheet({
-    width: size.width,
-    height: size.height,
-    palette,
-    entropy,
-    material: hybridWith ? hybridWith.id : null,
-    marginRatio: engine.marginRatio || 0.09,
-  });
-
-  const textSource = makeTextSource(makeRng(seed + ':text'), {
-    mode: source,
-    userText,
-  });
-
-  const result = engine.generate(makeRng(seed + ':gen:' + engine.id), textSource, sheet);
-
-  const svg = el('svg', {
-    viewBox: `0 0 ${sheet.width} ${sheet.height}`,
-    'font-kerning': 'normal',
-    /* geometric precision: hinted faces round their advances to the pixel
-     * at the size they are drawn, so a word measured at 10 px and shown
-     * at 8.5 px on a scaled sheet would not keep its measured width. This
-     * turns hinting off for the sheet, as the measuring canvas does. */
-    'text-rendering': 'geometricPrecision',
-  });
-  svg.appendChild(el('rect', {
-    x: 0, y: 0, width: sheet.width, height: sheet.height,
-    fill: palette.paper,
-  }));
-  for (const node of result.nodes) svg.appendChild(node);
-
-  const meta = {
-    engineId: engine.id,
-    engineName: engine.name,
-    seed,
-    attribution: result.attribution,
-    hybridWith: hybridWith ? { id: hybridWith.id, name: hybridWith.name } : null,
-    caption: result.caption || null,
-    title: result.title || 'untitled',
-  };
-  /* the colophon names the faces honestly: the pairing when its
-   * families are resident, the stand-ins when they are not */
-  const setIn = facesLoaded(pairing)
-    ? `set in ${pairing.name}`
-    : `meant for ${pairing.name}, set in the system’s stand-ins`;
-  meta.colophon = buildColophon(meta) + ` · ${setIn} · ${new Date().getFullYear()}`;
-  meta.filename = `typestract-${engine.id}-${seed}.svg`;
-  return { svg, meta, engine };
-}
 
 let showToken = 0;
 
@@ -205,6 +133,17 @@ async function show(entry, { push = true } = {}) {
   document.getElementById('export-flat').style.display =
     current.svg.querySelector('[data-flatten="1"]') ? '' : 'none';
   markEngineList();
+
+  /* the wall stands in for the sheet when asked; the sheet render above
+   * still feeds the seed box, the history and the gallery */
+  const onWall = state.view === 'wall';
+  holder.hidden = onWall;
+  document.getElementById('wall').hidden = !onWall;
+  document.body.classList.toggle('on-wall', onWall);
+  if (onWall) {
+    renderWall();
+    document.getElementById('colophon').textContent = wallColophon(current.meta);
+  }
 
   if (push) {
     historyList.splice(historyIndex + 1);
@@ -247,13 +186,50 @@ function markThumb() {
 }
 
 /* ------------------------------------------------------------------ *
+ * The wall: every engine at this seed, each tile a door to its sheet.
+ * ------------------------------------------------------------------ */
+
+function renderWall() {
+  const wall = document.getElementById('wall');
+  wall.innerHTML = '';
+  for (const e of ENGINES) {
+    const r = renderPoem({
+      seed: state.seed, engineId: e.id, source: state.source, userText: state.userText,
+      entropy: state.entropy, paperMode: state.paperMode, typeId: state.typeId, hybrid: state.hybrid,
+    });
+    const fig = document.createElement('figure');
+    fig.className = 'tile';
+    fig.dataset.engine = e.id;
+    fig.appendChild(r.svg);
+    const cap = document.createElement('figcaption');
+    cap.textContent = e.name;
+    cap.dataset.colophon = r.meta.colophon; // printed as the page's foot
+    fig.appendChild(cap);
+    fig.addEventListener('click', () => {
+      state.engine = e.id;
+      state.view = 'sheet';
+      show({ seed: state.seed, engineId: e.id });
+    });
+    wall.appendChild(fig);
+  }
+}
+
+/** The wall's colophon, built from the sheet's: number, seed, the count, the faces. */
+function wallColophon(meta) {
+  const parts = meta.colophon.split(' · ');
+  const setIn = parts.find((p) => /^(set in|meant for)/.test(p)) || '';
+  return [parts[0], 'the wall', `seed ${meta.seed}`, `${ENGINES.length === 25 ? 'twenty-five' : ENGINES.length} engines`, setIn, parts[parts.length - 1]]
+    .filter(Boolean).join(' · ');
+}
+
+/* ------------------------------------------------------------------ *
  * Controls.
  * ------------------------------------------------------------------ */
 
 function buildEngineList() {
   const list = document.getElementById('engine-list');
   list.innerHTML = '';
-  const mk = (id, name, lineage) => {
+  const mk = (id, name, lineage, onClick = null) => {
     const btn = document.createElement('button');
     btn.className = 'engine-item';
     btn.dataset.engine = id || '';
@@ -266,19 +242,32 @@ function buildEngineList() {
       ln.textContent = lineage;
       btn.appendChild(ln);
     }
-    btn.addEventListener('click', () => {
+    btn.addEventListener('click', onClick || (() => {
       state.engine = id;
       show({ seed: state.seed, engineId: id });
-    });
+    }));
     list.appendChild(btn);
   };
-  mk(null, 'chance', 'the dice pick the engine');
-  for (const e of ENGINES) mk(e.id, e.name, e.lineage);
+  mk(null, 'chance', 'the dice pick the engine', () => {
+    state.engine = null;
+    show({ seed: state.seed, engineId: null });
+  });
+  for (const e of ENGINES) mk(e.id, e.name, e.lineage, () => {
+    state.engine = e.id;
+    state.view = 'sheet';
+    show({ seed: state.seed, engineId: e.id });
+  });
+  mk('__wall', 'the wall', 'every engine at this seed', () => {
+    state.view = 'wall';
+    show({ seed: state.seed, engineId: state.engine }, { push: false });
+  });
 }
 
 function markEngineList() {
+  const onWall = state.view === 'wall';
   document.querySelectorAll('.engine-item').forEach((btn) => {
-    btn.classList.toggle('active', (btn.dataset.engine || null) === (state.engine || null));
+    const id = btn.dataset.engine || null;
+    btn.classList.toggle('active', onWall ? id === '__wall' : id === (state.engine || null));
   });
 }
 
@@ -395,6 +384,10 @@ function wire() {
     if (e.key === 'r' || e.key === 'R') reroll();
     else if (e.key === 'e' || e.key === 'E') cycleEngine(1);
     else if (e.key === 's' || e.key === 'S') downloadSVG(current.svg, current.meta);
+    else if (e.key === 'w' || e.key === 'W') {
+      state.view = state.view === 'wall' ? 'sheet' : 'wall';
+      show({ seed: state.seed, engineId: state.engine }, { push: false });
+    }
     else if (e.key === 'ArrowLeft') stepHistory(-1);
     else if (e.key === 'ArrowRight') stepHistory(1);
     else return;
@@ -452,6 +445,16 @@ function upgradeParses() {
 
 document.getElementById('no-module')?.remove(); // we ran; drop the file:// notice
 readURL();
+/* a cold visit opens on a curated sheet; everything after is chance */
+{
+  const q = new URLSearchParams(location.search);
+  if (!location.hash && !q.has('engine') && !q.has('hybrid')) {
+    const o = OPENINGS[Math.floor(Math.random() * OPENINGS.length)];
+    state.engine = o.engine;
+    state.seed = o.seed;
+    if (o.e !== undefined) state.entropy = o.e;
+  }
+}
 wire();
 const sourceRadio = document.querySelector(`input[name="source"][value="${state.source}"]`);
 if (sourceRadio) sourceRadio.checked = true;

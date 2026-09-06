@@ -62,37 +62,19 @@ globalThis.document = {
 
 /* ---------- render pipeline (mirrors main.js without UI) ---------- */
 
-const { makeRng } = await import('../src/prng.js');
-const { choosePalette } = await import('../src/palette.js');
-const { makeSheet, TYPE_PAIRINGS, setFonts } = await import('../src/typography.js');
-const { resetIds, el } = await import('../src/svg.js');
-const { makeTextSource } = await import('../src/text/procedures.js');
-const { ENGINES, sheetSizeFor, pickHybrid } = await import('../src/engines/index.js');
-const { buildColophon } = await import('../src/colophon.js');
+const { TYPE_PAIRINGS } = await import('../src/typography.js');
+const { ENGINES } = await import('../src/engines/index.js');
 
+const { renderPoem } = await import('../src/render.js');
+const pinned = TYPE_PAIRINGS.find((p) => p.id === 'baskerville') || TYPE_PAIRINGS[0];
+
+/* the same render the page uses, serialized through the shim */
 function render(seed, engine, mode = 'corpus', userText = '', hybrid = false, pairing = null, entropy = 0.5) {
-  resetIds();
-  setFonts(pairing || TYPE_PAIRINGS.find((p) => p.id === 'baskerville') || TYPE_PAIRINGS[0]);
-  const hybridWith = pickHybrid(makeRng(seed + ':hybrid'), engine, hybrid);
-  const palette = choosePalette(makeRng(seed + ':palette'), engine.paletteOpts || {});
-  const size = sheetSizeFor(engine);
-  const sheet = makeSheet({
-    width: size.width, height: size.height, palette,
-    entropy, material: hybridWith ? hybridWith.id : null,
-    marginRatio: engine.marginRatio || 0.09,
+  const r = renderPoem({
+    seed, engineId: engine.id, source: mode, userText, entropy,
+    paperMode: 'auto', typeId: (pairing || pinned).id, hybrid,
   });
-  const source = makeTextSource(makeRng(seed + ':text'), { mode, userText });
-  const result = engine.generate(makeRng(seed + ':gen:' + engine.id), source, sheet);
-  const svg = el('svg', { viewBox: `0 0 ${sheet.width} ${sheet.height}` });
-  svg.appendChild(el('rect', { x: 0, y: 0, width: sheet.width, height: sheet.height, fill: palette.paper }));
-  for (const n of result.nodes) svg.appendChild(n);
-  const colophon = buildColophon({
-    engineId: engine.id, engineName: engine.name, seed,
-    attribution: result.attribution,
-    hybridWith: hybridWith ? { id: hybridWith.id, name: hybridWith.name } : null,
-    caption: result.caption || null,
-  });
-  return { xml: serialize(svg), colophon, title: result.title };
+  return { xml: serialize(r.svg), colophon: r.meta.colophon, title: r.meta.title };
 }
 
 /* ---------- checks ---------- */
@@ -157,6 +139,21 @@ for (const id of ENTROPY_ENGINES) {
   }
 }
 console.log(`ok  entropy moves ${ENTROPY_ENGINES.length} once-deaf engines`);
+
+// typestract at low entropy is figures on white: 2–30 % of the grid struck
+{
+  const engine = ENGINES.find((x) => x.id === 'typestract');
+  for (const seed of seeds) {
+    const xml = render(seed, engine, 'corpus', '', false, null, 0.2).xml;
+    const gm = xml.match(/data-grid="(\d+)x(\d+)"/);
+    const cells = gm ? Number(gm[1]) * Number(gm[2]) : 0;
+    const struck = [...xml.matchAll(/<text[^>]*>([^<]*)<\/text>/g)]
+      .reduce((n, m) => n + m[1].replace(/\s/g, '').length, 0);
+    const ratio = cells ? struck / cells : -1;
+    if (ratio < 0.02 || ratio > 0.30) { console.error(`FAIL typestract coverage ${ratio.toFixed(3)}: ${seed}`); failures++; }
+  }
+  console.log('ok  typestract coverage (figures on white)');
+}
 
 // forced hybrid across seeds (engines may or may not pair; must not throw)
 for (const engine of ENGINES) {

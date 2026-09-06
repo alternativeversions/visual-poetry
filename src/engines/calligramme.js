@@ -32,6 +32,30 @@ function phrasesOf(text, want) {
 
 const strip = (s) => s.replace(/[.,;:!?—]+$/, '');
 
+/* Length of the polyline a smoothPath is built from, allowing for the bow. */
+function polyLen(pts) {
+  let n = 0;
+  for (let i = 1; i < pts.length; i++) n += Math.hypot(pts[i][0] - pts[i - 1][0], pts[i][1] - pts[i - 1][1]);
+  return n * 1.05;
+}
+
+/* Build a path's text to its measured length: phrases from `pool`, more
+ * fragments pulled as the pool runs dry, until the run covers `want` of
+ * `lengthPx`. Returns the text; mutates pool and atts. */
+function fitToPath(rng, source, pool, atts, seed, lengthPx, opts, want = 0.9) {
+  let text = seed;
+  for (let guard = 0; measure(text, opts) < lengthPx * want && guard < 40; guard++) {
+    if (!pool.length) {
+      const f = source.fragment(rng, { minWords: 8, maxWords: 24 });
+      atts.push(f.attribution);
+      pool.push(...phrasesOf(f.text, 5));
+    }
+    if (!pool.length) break;
+    text = text ? text + ' ' + pool.shift() : pool.shift();
+  }
+  return text;
+}
+
 export default {
   id: 'calligramme',
   name: 'calligramme',
@@ -49,6 +73,7 @@ export default {
       { value: 'ocean', weight: 3 },
     ]);
     const frag = source.fragment(rng, { minWords: 6, maxWords: 24 });
+    const atts = [frag.attribution];
     let title = '';
     let caption = '';
 
@@ -122,7 +147,7 @@ export default {
       const cx = box.x + box.w / 2;
       const baseY = box.y + box.h * rng.range(0.72, 0.82);
       const jets = rng.int(4, 6) + (entropy > 0.6 ? rng.int(0, 2) : 0);
-      const phrases = phrasesOf(frag.text, jets + 1);
+      const pool = phrasesOf(frag.text, jets + 1);
       const accentAt = palette.accent ? rng.int(0, jets - 1) : -1;
       for (let i = 0; i < jets; i++) {
         const side = i % 2 === 0 ? 1 : -1;
@@ -136,23 +161,22 @@ export default {
           [cx + side * spread * 1.15, (baseY + apexY) / 2],
           [cx + side * spread * 1.3 * over, baseY - rng.range(0, 20)],
         ];
+        /* each jet carries text the length of its rise and fall, from
+         * the nozzle out */
         const size = rng.range(11, 14);
-        nodes.push(textOnPath(phrases[i % phrases.length], smoothPath(pts), defs, {
-          size, family: FONTS.serif, style: 'italic',
-          fill: i === accentAt ? palette.accent : ink,
-          tracking: size * 0.08,
-          /* a short phrase can't trace the whole rise-and-fall; let it
-           * catch the jet at a different height each time, or every jet
-           * bunches at the nozzle */
-          startOffset: `${rng.int(0, 40)}%`,
+        const jOpts = { size, family: FONTS.serif, style: 'italic', tracking: size * 0.08 };
+        const text = fitToPath(rng, source, pool, atts, '', polyLen(pts), jOpts);
+        nodes.push(textOnPath(text, smoothPath(pts), defs, {
+          ...jOpts, fill: i === accentAt ? palette.accent : ink, startOffset: '0%',
         }));
       }
-      /* the pool: one line on a shallow curve */
+      /* the pool: one full line on a shallow curve */
       const poolR = box.w * 0.36;
       const poolD = `M${r2(cx - poolR)} ${r2(baseY + 14)} Q${r2(cx)} ${r2(baseY + 44)} ${r2(cx + poolR)} ${r2(baseY + 14)}`;
-      nodes.push(textOnPath(phrases[jets % phrases.length], poolD, defs, {
-        size: 13, family: FONTS.serif, fill: ink, tracking: 1.2,
-        startOffset: `${rng.int(15, 40)}%`,
+      const poolLen = poolR * 2 + (8 / 3) * (15 * 15) / (poolR * 2);
+      const pOpts = { size: 13, family: FONTS.serif, tracking: 1.2 };
+      nodes.push(textOnPath(fitToPath(rng, source, pool, atts, '', poolLen, pOpts), poolD, defs, {
+        ...pOpts, fill: ink, startOffset: '0%',
       }));
       title = 'jet d’eau';
     }
@@ -170,14 +194,17 @@ export default {
       const spokes = rng.int(8, 11) + Math.round(entropy * 4);
       const words = frag.text.split(/\s+/).filter(Boolean);
       const rot = rng.range(0, Math.PI * 2);
+      const oPool = [];
       for (let i = 0; i < spokes; i++) {
         const a = rot + (i / spokes) * Math.PI * 2 + rng.gauss(0, entropy * 0.05);
         const r0 = rMax * 0.22;
         const d = `M${r2(cx + Math.cos(a) * r0)} ${r2(cy + Math.sin(a) * r0)} L${r2(cx + Math.cos(a) * rMax)} ${r2(cy + Math.sin(a) * rMax)}`;
-        const text = words.slice(i % words.length).concat(words).slice(0, rng.int(3, 6)).map(strip).join(' ');
-        nodes.push(textOnPath(text, d, defs, {
-          size: rng.range(10.5, 13), family: FONTS.serif, fill: ink, tracking: 0.6,
-        }));
+        /* each spoke starts at a different word of the fragment and runs
+         * to the rim, pulling more text as the fragment runs out */
+        const seed = words.slice(i % words.length).concat(words).slice(0, rng.int(3, 6)).map(strip).join(' ');
+        const sOpts = { size: rng.range(10.5, 13), family: FONTS.serif, tracking: 0.6 };
+        const text = fitToPath(rng, source, oPool, atts, seed, (rMax - r0) * 0.92, sOpts);
+        nodes.push(textOnPath(text, d, defs, { ...sOpts, fill: ink }));
       }
       const rings = rng.int(1, 2);
       for (let i = 0; i < rings; i++) {
@@ -190,15 +217,18 @@ export default {
         const d = broken
           ? `M${r2(cx + Math.cos(a0) * r)} ${r2(cy + Math.sin(a0) * r)} A${r2(r)} ${r2(r)} 0 ${large} 1 ${r2(cx + Math.cos(a1) * r)} ${r2(cy + Math.sin(a1) * r)}`
           : `M${r2(cx + r)} ${r2(cy)} A${r2(r)} ${r2(r)} 0 1 1 ${r2(cx - r)} ${r2(cy)} A${r2(r)} ${r2(r)} 0 1 1 ${r2(cx + r)} ${r2(cy)}`;
-        nodes.push(textOnPath(frag.text, d, defs, {
-          size: 11.5, family: FONTS.serif, style: 'italic',
-          fill: palette.accent && i === 0 ? palette.accent : ink,
-          startOffset: `${rng.int(0, 40)}%`,
+        /* the ring carries text the length of its arc; a broken ring
+         * fills only its sweep, so the break stays visible */
+        const rOpts = { size: 11.5, family: FONTS.serif, style: 'italic' };
+        const text = fitToPath(rng, source, oPool, atts, frag.text, 2 * Math.PI * r * sweep * 0.95, rOpts);
+        nodes.push(textOnPath(text, d, defs, {
+          ...rOpts, fill: palette.accent && i === 0 ? palette.accent : ink, startOffset: '0%',
         }));
       }
       title = `${hub.toLowerCase()}-océan`;
     }
 
-    return { nodes: [defs, g({}, ...nodes)], title, attribution: frag.attribution, caption };
+    const uniq = [...new Set(atts)];
+    return { nodes: [defs, g({}, ...nodes)], title, attribution: uniq.slice(0, 2).join(' · '), caption };
   },
 };

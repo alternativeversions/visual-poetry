@@ -205,6 +205,36 @@
     max-height: 100%;
     box-shadow: 0 1px 2px rgba(22, 20, 18, 0.18), 0 10px 34px rgba(22, 20, 18, 0.22);
   }
+  /* ——— the wall: every engine at this seed ——— */
+  #wall {
+    flex: 1;
+    min-height: 0;
+    width: 100%;
+    overflow-y: auto;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: 14px;
+    align-content: start;
+    padding: 2px 2px 8px;
+  }
+  #wall[hidden], #sheet-holder[hidden] { display: none; }
+  #wall .tile { margin: 0; cursor: pointer; }
+  #wall .tile svg {
+    display: block;
+    width: 100%;
+    height: auto;
+    background: var(--paper);
+    box-shadow: 0 1px 2px rgba(22, 20, 18, 0.18), 0 6px 18px rgba(22, 20, 18, 0.18);
+  }
+  #wall .tile figcaption {
+    font-variant: all-small-caps;
+    letter-spacing: 0.12em;
+    font-size: 11px;
+    color: var(--faint);
+    text-align: center;
+    margin-top: 6px;
+  }
+  #wall .tile:hover figcaption { color: var(--ink); }
   #gallery {
     flex: none;
     display: flex;
@@ -269,6 +299,7 @@
     /* the poem leads */
     #stage { order: 1; padding: 14px 12px 4px; overflow: visible; }
     #sheet-holder { flex: none; min-height: 0; width: 100%; }
+    #wall { grid-template-columns: repeat(2, 1fr); overflow: visible; }
     #sheet-holder svg { width: 100%; height: auto; max-height: 78vh; }
 
     /* thumb bar: what R and ← → do on a desktop keyboard */
@@ -328,6 +359,27 @@
     .export-row { gap: 12px 18px; }
 
     #colophon { white-space: normal; overflow: visible; overflow-wrap: anywhere; line-height: 1.5; }
+  }
+
+  /* ——— print: the sheet as a page, or the wall as a chapbook ——— */
+  @media print {
+    @page { margin: 12mm; }
+    html, body { height: auto; overflow: visible; background: #fff; }
+    #app { display: block; }
+    #rail, #mobead, #touchbar, #gallery, #rotate-hint, #no-module { display: none !important; }
+    #stage { display: block; padding: 0; overflow: visible; }
+    #sheet-holder { display: block; }
+    #sheet-holder svg { display: block; max-width: 100%; max-height: 85vh; margin: 0 auto; box-shadow: none; }
+    #colophon { border: 0; background: none; white-space: normal; text-align: center; overflow: visible; }
+    #wall { display: block; overflow: visible; padding: 0; }
+    #wall .tile { break-after: page; break-inside: avoid; page-break-after: always; margin: 0 0 8mm; }
+    #wall .tile svg { max-height: 85vh; width: auto; margin: 0 auto; box-shadow: none; }
+    #wall .tile figcaption {
+      font-variant: normal; letter-spacing: 0; font-style: italic;
+      font-size: 11pt; color: #000; margin-top: 6pt;
+    }
+    #wall .tile figcaption::after { content: attr(data-colophon); display: block; font-size: 9.5pt; margin-top: 3pt; }
+    body.on-wall #colophon { display: none; }
   }
 </style>
 </head>
@@ -395,7 +447,8 @@
       <section id="keys">
         <div class="label"><span>Keys</span></div>
         <kbd>R</kbd> re-roll &nbsp; <kbd>E</kbd> cycle engine<br>
-        <kbd>S</kbd> export SVG &nbsp; <kbd>←</kbd><kbd>→</kbd> history
+        <kbd>S</kbd> export SVG &nbsp; <kbd>←</kbd><kbd>→</kbd> history<br>
+        <kbd>W</kbd> the wall
       </section>
     </aside>
 
@@ -409,6 +462,7 @@ python3 -m http.server 8000
 # then open http://localhost:8000</pre>
         </div>
       </div>
+      <div id="wall" hidden></div>
       <div id="rotate-hint" hidden>
         <span>A landscape spread — turn your phone for the full sheet.</span>
         <button type="button" id="rotate-hint-dismiss">dismiss</button>
