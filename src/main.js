@@ -129,6 +129,7 @@ async function show(entry, { push = true } = {}) {
   const holder = document.getElementById('sheet-holder');
   holder.innerHTML = '';
   holder.appendChild(current.svg);
+  holder.classList.toggle('landscape', isLandscape(current.svg));
   document.getElementById('colophon').textContent = current.meta.colophon;
   document.getElementById('seed-input').value = state.seed;
   document.getElementById('export-flat').style.display =
@@ -143,8 +144,11 @@ async function show(entry, { push = true } = {}) {
   document.getElementById('wall').hidden = !onWall;
   document.body.classList.toggle('on-wall', onWall);
   if (onWall) {
-    renderWall();
+    const plates = renderWall();
     document.getElementById('colophon').textContent = wallColophon(current.meta);
+    buildBook(plates, true);
+  } else {
+    buildBook([{ name: current.meta.engineName, colophon: current.meta.colophon }], false);
   }
 
   if (!document.getElementById('drawer').hidden) openDrawer();
@@ -193,18 +197,25 @@ function markThumb() {
  * The wall: every engine at this seed, each tile a door to its sheet.
  * ------------------------------------------------------------------ */
 
+const isLandscape = (svg) => {
+  const vb = (svg.getAttribute('viewBox') || '').split(/\s+/).map(Number);
+  return vb.length === 4 && vb[2] > vb[3];
+};
+
 function renderWall() {
   const wall = document.getElementById('wall');
   wall.innerHTML = '';
+  const plates = [];
   for (const e of ENGINES) {
     const r = renderPoem({
       seed: state.seed, engineId: e.id, source: state.source, userText: state.userText,
       entropy: state.entropy, paperMode: state.paperMode, typeId: state.typeId, hybrid: state.hybrid,
     });
     const fig = document.createElement('figure');
-    fig.className = 'tile';
+    fig.className = 'tile' + (isLandscape(r.svg) ? ' landscape' : '');
     fig.dataset.engine = e.id;
     fig.appendChild(r.svg);
+    plates.push({ name: e.name, colophon: r.meta.colophon });
     const cap = document.createElement('figcaption');
     cap.textContent = e.name;
     cap.dataset.colophon = r.meta.colophon; // printed as the page's foot
@@ -216,6 +227,74 @@ function renderWall() {
     });
     wall.appendChild(fig);
   }
+  return plates;
+}
+
+/* ------------------------------------------------------------------ *
+ * The book: print-only front and back matter. Every plate prints full
+ * bleed; the numbering, seed and citations wait here, as in a book.
+ * ------------------------------------------------------------------ */
+
+const ROMAN = [[10, 'X'], [9, 'IX'], [5, 'V'], [4, 'IV'], [1, 'I']];
+function roman(n) {
+  let out = '';
+  for (const [v, r] of ROMAN) while (n >= v) { out += r; n -= v; }
+  return out;
+}
+
+function buildBook(plates, wall) {
+  const front = document.getElementById('book-front');
+  const back = document.getElementById('book-back');
+  front.innerHTML = '';
+  back.innerHTML = '';
+  const el = (tag, cls, text) => {
+    const n = document.createElement(tag);
+    if (cls) n.className = cls;
+    if (text !== undefined) n.textContent = text;
+    return n;
+  };
+  const parts = current.meta.colophon.split(' · ');
+  const setIn = parts.find((p) => /^(set in|meant for)/.test(p)) || '';
+  const when = new Date().toLocaleDateString('en-GB', { month: 'long', year: 'numeric' });
+
+  if (wall) {
+    const half = el('section', 'matter half-title');
+    half.appendChild(el('p', 'wm', 'TYPESTRACT'));
+    front.appendChild(half);
+    const title = el('section', 'matter title-page');
+    title.appendChild(el('p', 'wm', 'TYPESTRACT'));
+    title.appendChild(el('p', 'wm-sub', 'generative visual poetry'));
+    const lines = el('div', 'title-lines');
+    lines.appendChild(el('span', null, 'the wall'));
+    lines.appendChild(el('span', null, `seed ${state.seed}`));
+    lines.appendChild(el('span', null, `${plates.length === 25 ? 'twenty-five' : plates.length} engines, one seed`));
+    if (setIn) lines.appendChild(el('span', null, setIn));
+    lines.appendChild(el('span', null, when));
+    title.appendChild(lines);
+    front.appendChild(title);
+  }
+
+  const list = el('section', 'matter plates');
+  list.appendChild(el('h2', null, wall ? 'Plates' : 'Colophon'));
+  const ol = el('ol');
+  /* on the wall the title page already carries the number, seed, faces
+   * and year: each plate keeps only its lineage and its text source */
+  const trim = (colophon) => colophon.split(' · ')
+    .filter((part) => !/^(№ |seed |set in|meant for|\d{4}$)/.test(part) && !plates.some((q) => q.name === part))
+    .join(' · ');
+  plates.forEach((p, i) => {
+    const li = el('li');
+    if (wall) li.appendChild(el('span', 'num', roman(i + 1)));
+    li.appendChild(el('span', 'engine', p.name));
+    li.appendChild(el('span', 'line', wall ? trim(p.colophon) : p.colophon));
+    ol.appendChild(li);
+  });
+  list.appendChild(ol);
+  const foot = el('div', 'foot');
+  foot.appendChild(el('span', null, 'typestract — alternativeversions.github.io/visual-poetry'));
+  foot.appendChild(el('span', null, location.href));
+  list.appendChild(foot);
+  back.appendChild(list);
 }
 
 /** The wall's colophon, built from the sheet's: number, seed, the count, the faces. */

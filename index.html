@@ -413,25 +413,56 @@
     #colophon { white-space: normal; overflow: visible; overflow-wrap: anywhere; line-height: 1.5; }
   }
 
-  /* ——— print: the sheet as a page, or the wall as a chapbook ——— */
+  /* ——— print: a book. Every page is a plate at the sheet's own
+   * proportions, full bleed; the landscape sheets turn the page sideways;
+   * the numbering, seeds and citations wait in the back matter. ——— */
+  #book-front, #book-back { display: none; }
   @media print {
-    @page { margin: 12mm; }
-    html, body { height: auto; overflow: visible; background: #fff; }
+    @page { size: 6in 8in; margin: 0; }
+    @page plate { size: 6in 8in; margin: 0; }
+    @page spread { size: 8in 6in; margin: 0; }
+    @page matter { size: 6in 8in; margin: 0.7in 0.65in; }
+    html, body { height: auto; overflow: visible; background: #fff; margin: 0; }
     #app { display: block; }
-    #rail, #mobead, #touchbar, #gallery, #rotate-hint, #no-module, #drawer { display: none !important; }
-    #stage { display: block; padding: 0; overflow: visible; }
-    #sheet-holder { display: block; }
-    #sheet-holder svg { display: block; max-width: 100%; max-height: 85vh; margin: 0 auto; box-shadow: none; }
-    #colophon { border: 0; background: none; white-space: normal; text-align: center; overflow: visible; }
-    #wall { display: block; overflow: visible; padding: 0; }
-    #wall .tile { break-after: page; break-inside: avoid; page-break-after: always; margin: 0 0 8mm; }
-    #wall .tile svg { max-height: 85vh; width: auto; margin: 0 auto; box-shadow: none; }
-    #wall .tile figcaption {
-      font-variant: normal; letter-spacing: 0; font-style: italic;
-      font-size: 11pt; color: #000; margin-top: 6pt;
+    #rail, #mobead, #touchbar, #gallery, #rotate-hint, #no-module, #drawer, #colophon { display: none !important; }
+    #stage { display: block; padding: 0; overflow: visible; position: static; }
+    /* the plates */
+    #sheet-holder, #wall { display: block; overflow: visible; padding: 0; width: auto; }
+    #sheet-holder[hidden], #wall[hidden] { display: none; }
+    #sheet-holder, #wall .tile {
+      page: plate; break-after: page; break-inside: avoid; page-break-after: always;
+      width: 6in; height: 8in; margin: 0; overflow: hidden;
     }
-    #wall .tile figcaption::after { content: attr(data-colophon); display: block; font-size: 9.5pt; margin-top: 3pt; }
-    body.on-wall #colophon { display: none; }
+    #sheet-holder.landscape, #wall .tile.landscape { page: spread; width: 8in; height: 6in; }
+    #sheet-holder svg, #wall .tile svg {
+      display: block; width: 100%; height: 100%; max-width: none; max-height: none;
+      margin: 0; box-shadow: none; background: none;
+    }
+    #wall .tile figcaption { display: none; }
+    /* front and back matter */
+    #book-front, #book-back { display: block; }
+    #book-front:empty, #book-back:empty { display: none; }
+    .matter {
+      page: matter; break-after: page; page-break-after: always; break-inside: avoid;
+      height: 6.6in; display: flex; flex-direction: column; justify-content: center;
+      font-size: 10.5pt; line-height: 1.5; color: #161412;
+    }
+    .matter.plates { justify-content: flex-start; height: auto; min-height: 6.6in; }
+    .matter .wm { font-size: 20pt; letter-spacing: 0.34em; text-align: center; font-weight: normal; margin: 0; }
+    .matter .wm-sub { text-align: center; font-style: italic; color: #6b665f; margin-top: 4pt; }
+    .matter .title-lines { text-align: center; font-style: italic; margin-top: 28pt; }
+    .matter .title-lines span { display: block; margin: 3pt 0; }
+    .matter h2 {
+      font-variant: all-small-caps; letter-spacing: 0.16em; font-weight: normal; font-size: 12pt;
+      border-bottom: 0.5pt solid #161412; padding-bottom: 3pt; margin: 0 0 12pt;
+    }
+    .matter ol { list-style: none; margin: 0; padding: 0; }
+    .matter ol li { break-inside: avoid; margin-bottom: 7pt; font-size: 8.5pt; line-height: 1.4; }
+    .matter ol li .num { display: inline-block; width: 3.4em; }
+    .matter ol li .engine { font-variant: all-small-caps; letter-spacing: 0.1em; }
+    .matter ol li .line { display: block; margin-left: 3.4em; font-style: italic; color: #4a4640; }
+    .matter .foot { margin-top: auto; padding-top: 16pt; font-size: 8.5pt; font-style: italic; color: #6b665f; text-align: center; }
+    .matter .foot span { display: block; }
   }
 </style>
 </head>
@@ -506,6 +537,7 @@
     </aside>
 
     <main id="stage">
+      <div id="book-front"></div>
       <div id="sheet-holder">
         <div id="no-module" hidden>
           <p>The page loaded but its script did not.</p>
@@ -530,6 +562,7 @@ python3 -m http.server 8000
         <button type="button" class="nav" id="hist-next" aria-label="next poem">▶</button>
       </div>
       <div id="gallery"></div>
+      <div id="book-back"></div>
     </main>
   </div>
   <footer id="colophon"></footer>
