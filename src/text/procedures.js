@@ -121,7 +121,7 @@ export function makeTextSource(rng, { mode = 'corpus', userText = '' } = {}) {
   const source = { mode, userText: user ? user.clean : '' };
 
   /** One fragment, roughly minWords..maxWords words. */
-  source.fragment = (r, { minWords = 3, maxWords = 14 } = {}) => {
+  source.fragment = (r, { minWords = 3, maxWords = 14, mood = null, lang = null } = {}) => {
     if (user) {
       const candidates = user.sentences.filter((s) => {
         const n = s.split(/\s+/).length;
@@ -131,7 +131,16 @@ export function makeTextSource(rng, { mode = 'corpus', userText = '' } = {}) {
       const words = s.split(/\s+/).slice(0, maxWords * 2);
       return plain({ text: words.join(' '), attribution: 'user text' });
     }
-    const pool = byLength(minWords, maxWords).filter((f) => f.kind !== 'word');
+    let pool = byLength(minWords, maxWords).filter((f) => f.kind !== 'word');
+    /* one voice: narrow to a mood and a language when asked, falling
+     * back to the mood alone, then to the whole pool, when few remain */
+    if (mood || lang) {
+      const narrow = (p, m, l) => p.filter((f) => (!m || f.mood === m) && (!l || f.lang === l));
+      let p = narrow(pool, mood, lang);
+      if (p.length < 4) p = narrow(pool, mood, null);
+      if (p.length < 4) p = pool;
+      pool = p;
+    }
     const frag = r.pick(pool.length ? pool : CORPUS.filter((f) => f.kind !== 'word'));
     if (mode === 'procedural') {
       const op = r.pick(['erasure', 'stutter', 'recombine', 'plain']);
