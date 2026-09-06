@@ -62,37 +62,19 @@ globalThis.document = {
 
 /* ---------- render pipeline (mirrors main.js without UI) ---------- */
 
-const { makeRng } = await import('../src/prng.js');
-const { choosePalette } = await import('../src/palette.js');
-const { makeSheet, TYPE_PAIRINGS, setFonts } = await import('../src/typography.js');
-const { resetIds, el } = await import('../src/svg.js');
-const { makeTextSource } = await import('../src/text/procedures.js');
-const { ENGINES, sheetSizeFor, pickHybrid } = await import('../src/engines/index.js');
-const { buildColophon } = await import('../src/colophon.js');
+const { TYPE_PAIRINGS } = await import('../src/typography.js');
+const { ENGINES } = await import('../src/engines/index.js');
 
+const { renderPoem } = await import('../src/render.js');
+const pinned = TYPE_PAIRINGS.find((p) => p.id === 'baskerville') || TYPE_PAIRINGS[0];
+
+/* the same render the page uses, serialized through the shim */
 function render(seed, engine, mode = 'corpus', userText = '', hybrid = false, pairing = null, entropy = 0.5) {
-  resetIds();
-  setFonts(pairing || TYPE_PAIRINGS.find((p) => p.id === 'baskerville') || TYPE_PAIRINGS[0]);
-  const hybridWith = pickHybrid(makeRng(seed + ':hybrid'), engine, hybrid);
-  const palette = choosePalette(makeRng(seed + ':palette'), engine.paletteOpts || {});
-  const size = sheetSizeFor(engine);
-  const sheet = makeSheet({
-    width: size.width, height: size.height, palette,
-    entropy, material: hybridWith ? hybridWith.id : null,
-    marginRatio: engine.marginRatio || 0.09,
+  const r = renderPoem({
+    seed, engineId: engine.id, source: mode, userText, entropy,
+    paperMode: 'auto', typeId: (pairing || pinned).id, hybrid,
   });
-  const source = makeTextSource(makeRng(seed + ':text'), { mode, userText });
-  const result = engine.generate(makeRng(seed + ':gen:' + engine.id), source, sheet);
-  const svg = el('svg', { viewBox: `0 0 ${sheet.width} ${sheet.height}` });
-  svg.appendChild(el('rect', { x: 0, y: 0, width: sheet.width, height: sheet.height, fill: palette.paper }));
-  for (const n of result.nodes) svg.appendChild(n);
-  const colophon = buildColophon({
-    engineId: engine.id, engineName: engine.name, seed,
-    attribution: result.attribution,
-    hybridWith: hybridWith ? { id: hybridWith.id, name: hybridWith.name } : null,
-    caption: result.caption || null,
-  });
-  return { xml: serialize(svg), colophon, title: result.title };
+  return { xml: serialize(r.svg), colophon: r.meta.colophon, title: r.meta.title };
 }
 
 /* ---------- checks ---------- */
