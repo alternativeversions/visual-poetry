@@ -360,6 +360,27 @@
 
     #colophon { white-space: normal; overflow: visible; overflow-wrap: anywhere; line-height: 1.5; }
   }
+
+  /* ——— print: the sheet as a page, or the wall as a chapbook ——— */
+  @media print {
+    @page { margin: 12mm; }
+    html, body { height: auto; overflow: visible; background: #fff; }
+    #app { display: block; }
+    #rail, #mobead, #touchbar, #gallery, #rotate-hint, #no-module { display: none !important; }
+    #stage { display: block; padding: 0; overflow: visible; }
+    #sheet-holder { display: block; }
+    #sheet-holder svg { display: block; max-width: 100%; max-height: 85vh; margin: 0 auto; box-shadow: none; }
+    #colophon { border: 0; background: none; white-space: normal; text-align: center; overflow: visible; }
+    #wall { display: block; overflow: visible; padding: 0; }
+    #wall .tile { break-after: page; break-inside: avoid; page-break-after: always; margin: 0 0 8mm; }
+    #wall .tile svg { max-height: 85vh; width: auto; margin: 0 auto; box-shadow: none; }
+    #wall .tile figcaption {
+      font-variant: normal; letter-spacing: 0; font-style: italic;
+      font-size: 11pt; color: #000; margin-top: 6pt;
+    }
+    #wall .tile figcaption::after { content: attr(data-colophon); display: block; font-size: 9.5pt; margin-top: 3pt; }
+    body.on-wall #colophon { display: none; }
+  }
 </style>
 </head>
 <body>
