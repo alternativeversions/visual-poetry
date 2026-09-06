@@ -178,6 +178,7 @@
 
   /* ——— stage ——— */
   #stage {
+    position: relative;
     flex: 1;
     display: flex;
     flex-direction: column;
@@ -263,6 +264,46 @@
   }
   #gallery img:hover, #gallery img.current { opacity: 1; outline: 1px solid var(--faint); }
 
+  /* ——— the lineage drawer, fed by the README ——— */
+  #drawer {
+    position: absolute;
+    top: 0; right: 0; bottom: 0;
+    width: 420px;
+    max-width: 100%;
+    background: var(--paper);
+    border-left: 1px solid var(--hairline);
+    padding: 30px 28px 28px;
+    overflow-y: auto;
+    font-size: 13.5px;
+    line-height: 1.55;
+    box-shadow: -8px 0 24px rgba(22, 20, 18, 0.12);
+    z-index: 2;
+  }
+  #drawer[hidden] { display: none; }
+  #drawer-close {
+    position: absolute; top: 10px; right: 14px;
+    background: none; border: none; font: inherit; font-size: 20px;
+    color: var(--faint); cursor: pointer; line-height: 1;
+  }
+  #drawer-close:hover { color: var(--ink); }
+  #drawer h2 {
+    font-variant: all-small-caps; letter-spacing: 0.14em; font-weight: normal;
+    font-size: 15px; border-bottom: 1px solid var(--hairline);
+    padding-bottom: 4px; margin: 0 0 12px;
+  }
+  #drawer h2 + h2, #drawer .readme-link + h2 { margin-top: 26px; }
+  #drawer p { margin: 0 0 12px; }
+  #drawer p.faint { color: var(--faint); font-style: italic; }
+  #drawer code { font: 12px 'Courier Prime', 'Courier New', monospace; }
+  #drawer .cites-label {
+    font-variant: all-small-caps; letter-spacing: 0.12em; color: var(--faint);
+    margin: 16px 0 4px; font-size: 12.5px;
+  }
+  #drawer ul.cites { list-style: none; margin: 0 0 18px; padding: 0; font-style: italic; color: var(--faint); }
+  #drawer ul.cites li { margin-bottom: 3px; }
+  #drawer .readme-link { color: var(--ink); font-style: italic; }
+  #colophon { cursor: pointer; }
+
   /* ——— colophon bar ——— */
   #colophon {
     flex: none;
@@ -310,6 +351,7 @@
     #stage { order: 1; padding: 14px 12px 4px; overflow: visible; }
     #sheet-holder { flex: none; min-height: 0; width: 100%; }
     #wall { grid-template-columns: repeat(2, 1fr); overflow: visible; }
+    #drawer { position: fixed; width: 100%; }
     #sheet-holder svg { width: 100%; height: auto; max-height: 78vh; }
 
     /* thumb bar: what R and ← → do on a desktop keyboard */
@@ -376,7 +418,7 @@
     @page { margin: 12mm; }
     html, body { height: auto; overflow: visible; background: #fff; }
     #app { display: block; }
-    #rail, #mobead, #touchbar, #gallery, #rotate-hint, #no-module { display: none !important; }
+    #rail, #mobead, #touchbar, #gallery, #rotate-hint, #no-module, #drawer { display: none !important; }
     #stage { display: block; padding: 0; overflow: visible; }
     #sheet-holder { display: block; }
     #sheet-holder svg { display: block; max-width: 100%; max-height: 85vh; margin: 0 auto; box-shadow: none; }
@@ -474,6 +516,10 @@ python3 -m http.server 8000
         </div>
       </div>
       <div id="wall" hidden></div>
+      <aside id="drawer" hidden>
+        <button type="button" id="drawer-close" aria-label="close">×</button>
+        <div id="drawer-body"></div>
+      </aside>
       <div id="rotate-hint" hidden>
         <span>A landscape spread — turn your phone for the full sheet.</span>
         <button type="button" id="rotate-hint-dismiss">dismiss</button>
