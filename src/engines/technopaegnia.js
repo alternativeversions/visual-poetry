@@ -66,21 +66,26 @@ const SHAPES = [
 ];
 
 /** Pull fragments until their measured length covers `budgetPx` of set text. */
-function gatherWords(rng, source, budgetPx, size) {
+function gatherWords(rng, source, budgetPx, size, { avoidMood = null } = {}) {
   const words = [];
   let attribution = null;
+  let mood = null;
   let gathered = 0;
   let guard = 0;
   while (gathered < budgetPx * 1.2 && guard++ < 40) {
-    const frag = source.fragment(rng, { minWords: 5, maxWords: 20 });
+    let frag = source.fragment(rng, { minWords: 5, maxWords: 20 });
+    /* a contrary text prefers another mood than the first; four tries */
+    for (let k = 0; avoidMood && frag.mood === avoidMood && k < 3; k++) {
+      frag = source.fragment(rng, { minWords: 5, maxWords: 20 });
+    }
     for (const w of frag.text.split(/\s+/)) {
       words.push(w);
       gathered += measure(w + ' ', { size, family: FONTS.serif });
     }
-    if (!attribution) attribution = frag.attribution;
+    if (!attribution) { attribution = frag.attribution; mood = frag.mood || null; }
     else if (guard === 2) attribution += ' · ' + frag.attribution;
   }
-  return { words, attribution };
+  return { words, attribution, mood };
 }
 
 export default {
@@ -140,8 +145,17 @@ export default {
         inkBudget += Math.max(baseSize * 2.2, measureW * frac);
       }
     }
-    const { words, attribution } = gatherWords(rng, source, inkBudget, baseSize);
+    const { words, attribution, mood } = gatherWords(rng, source, inkBudget, baseSize);
     const queue = words.slice();
+    /* above 0.6 a second, contrary text pours through the same shape,
+     * line for line with the first: the silhouette holds while the poem
+     * argues with itself. Set italic, in the accent where there is one. */
+    const asemicFill = sheet.material === 'asemic';
+    let contrary = null;
+    if (entropy >= 0.6 && !asemicFill) {
+      const other = gatherWords(rng, source, inkBudget * 0.6, baseSize, { avoidMood: mood });
+      contrary = { queue: other.words.slice(), attribution: other.attribution };
+    }
 
     const nodes = [];
     const blockH = totalLines * leading;
@@ -155,22 +169,22 @@ export default {
     }
 
     /** Fill one line to `budget` px at `size`, hyphenating as a printer would. */
-    const fillLine = (budget, size) => {
+    const fillLine = (budget, size, q = queue) => {
       const opts = { size, family: serif };
       let text = '';
-      while (queue.length) {
-        const word = queue[0];
+      while (q.length) {
+        const word = q[0];
         const trial = text ? text + ' ' + word : word;
         if (measure(trial, opts) <= budget) {
           text = trial;
-          queue.shift();
+          q.shift();
         } else if (!text || measure(text, opts) < budget * 0.55) {
           // the line is still too empty: hyphenate the next word
           let cut = word.length - 2;
           while (cut > 2 && measure((text ? text + ' ' : '') + word.slice(0, cut) + '-', opts) > budget) cut--;
           if (cut > 2) {
             text = (text ? text + ' ' : '') + word.slice(0, cut) + '-';
-            queue[0] = word.slice(cut);
+            q[0] = word.slice(cut);
           }
           break;
         } else break;
@@ -179,11 +193,11 @@ export default {
     };
 
     // crossbreed: the silhouette filled with asemic near-writing
-    const asemicFill = sheet.material === 'asemic';
     const lengths = asemicFill
       ? words.map((w) => w.replace(/[^\p{L}]/gu, '').length || 3)
       : null;
 
+    let lineNo = 0;
     for (let b = 0; b < shape.blocks; b++) {
       for (let i = 0; i < nLines; i++) {
         let t = nLines === 1 ? 0 : i / (nLines - 1);
@@ -196,13 +210,18 @@ export default {
             justify: true, lengths, slant: 0.12,
           }).nodes);
         } else {
-          const text = fillLine(budget, size);
+          const useB = contrary && lineNo % 2 === 1 && contrary.queue.length > 0;
+          const text = fillLine(budget, size, useB ? contrary.queue : queue);
           if (text) {
             nodes.push(textEl(text, {
-              x: cx, y, size, family: serif, anchor: 'middle', fill: sheet.palette.ink,
+              x: cx, y, size, family: serif, anchor: 'middle',
+              style: useB ? 'italic' : 'normal',
+              fill: useB && sheet.palette.accent ? sheet.palette.accent : sheet.palette.ink,
+              opacity: useB && !sheet.palette.accent ? 0.7 : 1,
             }));
           }
         }
+        lineNo++;
         y += leading;
       }
       y += leading * 2; // stanza break between wings
@@ -226,7 +245,9 @@ export default {
     return {
       nodes: [g({}, ...nodes)],
       title: `${shape.name}, poured`,
-      attribution,
+      attribution: contrary && contrary.attribution !== attribution
+        ? `${attribution.split(' · ')[0]} × ${contrary.attribution.split(' · ')[0]}`
+        : attribution,
       caption: oracle
         ? 'after the Greek technopaegnia (4th c. BCE) · silhouette by a local model'
         : null,
