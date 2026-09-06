@@ -66,23 +66,28 @@ const SHAPES = [
 ];
 
 /** Pull fragments until their measured length covers `budgetPx` of set text. */
-function gatherWords(rng, source, budgetPx, size, { avoidMood = null } = {}) {
+function gatherWords(rng, source, budgetPx, size, { avoidMood = null, oneVoice = false } = {}) {
   const words = [];
+  const seen = new Set();
   let attribution = null;
   let mood = null;
+  let lang = null;
   let gathered = 0;
   let guard = 0;
   while (gathered < budgetPx * 1.2 && guard++ < 40) {
-    let frag = source.fragment(rng, { minWords: 5, maxWords: 20 });
-    /* a contrary text prefers another mood than the first; four tries */
-    for (let k = 0; avoidMood && frag.mood === avoidMood && k < 3; k++) {
-      frag = source.fragment(rng, { minWords: 5, maxWords: 20 });
+    /* one voice, Herbert's way: the first fragment sets the mood and the
+     * language, every fragment after it agrees, and none is repeated */
+    const filter = oneVoice && mood ? { minWords: 5, maxWords: 20, mood, lang } : { minWords: 5, maxWords: 20 };
+    let frag = source.fragment(rng, filter);
+    for (let k = 0; k < 3 && (seen.has(frag.text) || (avoidMood && frag.mood === avoidMood)); k++) {
+      frag = source.fragment(rng, filter);
     }
+    seen.add(frag.text);
     for (const w of frag.text.split(/\s+/)) {
       words.push(w);
       gathered += measure(w + ' ', { size, family: FONTS.serif });
     }
-    if (!attribution) { attribution = frag.attribution; mood = frag.mood || null; }
+    if (!attribution) { attribution = frag.attribution; mood = frag.mood || null; lang = frag.lang || null; }
     else if (guard === 2) attribution += ' · ' + frag.attribution;
   }
   return { words, attribution, mood };
@@ -145,7 +150,7 @@ export default {
         inkBudget += Math.max(baseSize * 2.2, measureW * frac);
       }
     }
-    const { words, attribution, mood } = gatherWords(rng, source, inkBudget, baseSize);
+    const { words, attribution, mood } = gatherWords(rng, source, inkBudget, baseSize, { oneVoice: true });
     const queue = words.slice();
     /* above 0.6 a second, contrary text pours through the same shape,
      * line for line with the first: the silhouette holds while the poem

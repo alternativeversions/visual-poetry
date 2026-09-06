@@ -51,7 +51,9 @@ thinne" before rising — the diminishing type *is* the theology — and "The
 Altar" builds its shape from "a heart, and cemented with tears." The
 `technopaegnia` engine computes per-line character budgets from a shape
 function and pours measured, hyphenated text into wings, altar, axe,
-hourglass, wave, and column.
+hourglass, wave, and column. The shape is poured in one voice: the first
+fragment sets the mood and the language, every fragment after it agrees,
+and none is repeated.
 
 **The woven grid.** Late antiquity already had a second way to shape a
 poem: Optatian Porfyry's carmina cancellata (4th c. CE) marshalled
