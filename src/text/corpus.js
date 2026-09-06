@@ -341,6 +341,25 @@ export const CORPUS = [
   { text: 'Ce toit tranquille, où marchent des colombes', attribution: 'P. Valéry, “Le Cimetière marin” (1920)', mood: 'still', kind: 'line', lang: 'fr' },
   { text: 'La mer, la mer, toujours recommencée !', attribution: 'P. Valéry, “Le Cimetière marin” (1920)', mood: 'cosmic', kind: 'sentence', lang: 'fr' },
   { text: 'Le vent se lève ! il faut tenter de vivre !', attribution: 'P. Valéry, “Le Cimetière marin” (1920)', mood: 'ecstatic', kind: 'sentence', lang: 'fr' },
+  // ——— Italian and Latin, in the originals ———
+  { text: 'Sempre caro mi fu quest’ermo colle', attribution: 'G. Leopardi, “L’infinito” (1819)', mood: 'still', kind: 'line', lang: 'it' },
+  { text: 'e il naufragar m’è dolce in questo mare.', attribution: 'G. Leopardi, “L’infinito” (1819)', mood: 'cosmic', kind: 'line', lang: 'it' },
+  { text: 'Che fai tu, luna, in ciel? dimmi, che fai, silenziosa luna?', attribution: 'G. Leopardi, “Canto notturno” (1830)', mood: 'cosmic', kind: 'sentence', lang: 'it' },
+  { text: 'Or poserai per sempre, stanco mio cor.', attribution: 'G. Leopardi, “A se stesso” (1833)', mood: 'elegiac', kind: 'sentence', lang: 'it' },
+  { text: 'Solo et pensoso i più deserti campi vo mesurando a passi tardi et lenti', attribution: 'Petrarch, Canzoniere 35 (c. 1350)', mood: 'elegiac', kind: 'line', lang: 'it' },
+  { text: 'Chiare, fresche et dolci acque', attribution: 'Petrarch, Canzoniere 126 (c. 1350)', mood: 'ecstatic', kind: 'phrase', lang: 'it' },
+  { text: 'l’amor che move il sole e l’altre stelle', attribution: 'Dante, Paradiso XXXIII (c. 1320)', mood: 'cosmic', kind: 'line', lang: 'it' },
+  { text: 'Vivamus, mea Lesbia, atque amemus', attribution: 'Catullus, Carmen 5', mood: 'ecstatic', kind: 'line', lang: 'la' },
+  { text: 'soles occidere et redire possunt', attribution: 'Catullus, Carmen 5', mood: 'cosmic', kind: 'line', lang: 'la' },
+  { text: 'nox est perpetua una dormienda', attribution: 'Catullus, Carmen 5', mood: 'elegiac', kind: 'line', lang: 'la' },
+  { text: 'atque in perpetuum, frater, ave atque vale.', attribution: 'Catullus, Carmen 101', mood: 'elegiac', kind: 'sentence', lang: 'la' },
+  { text: 'carpe diem, quam minimum credula postero', attribution: 'Horace, Odes I.11 (23 BCE)', mood: 'wry', kind: 'line', lang: 'la' },
+  { text: 'Exegi monumentum aere perennius', attribution: 'Horace, Odes III.30 (23 BCE)', mood: 'cosmic', kind: 'line', lang: 'la' },
+  { text: 'pallida Mors aequo pulsat pede pauperum tabernas regumque turris', attribution: 'Horace, Odes I.4 (23 BCE)', mood: 'elegiac', kind: 'line', lang: 'la' },
+  { text: 'Suave, mari magno turbantibus aequora ventis, e terra magnum alterius spectare laborem', attribution: 'Lucretius, De rerum natura II (c. 55 BCE)', mood: 'wry', kind: 'sentence', lang: 'la' },
+  { text: 'nil posse creari de nilo', attribution: 'Lucretius, De rerum natura I (c. 55 BCE)', mood: 'cosmic', kind: 'phrase', lang: 'la' },
+  { text: 'In nova fert animus mutatas dicere formas corpora', attribution: 'Ovid, Metamorphoses I (8 CE)', mood: 'cosmic', kind: 'line', lang: 'la' },
+  { text: 'Barbarus hic ego sum, qui non intellegor ulli', attribution: 'Ovid, Tristia V.10 (c. 12 CE)', mood: 'elegiac', kind: 'line', lang: 'la' },
 ];
 
 /* Merge a private, gitignored supplement if one exists. The probe runs
