@@ -25,6 +25,7 @@ const state = {
   paperMode: 'auto',
   typeId: 'chance', // type pairing, or 'chance' to let the seed choose
   hybrid: false, // forced hybrid via ?hybrid=1
+  view: 'sheet', // or 'wall': every engine at this seed
 };
 
 /* the pasted text rides in the hash — never the query, so it never
@@ -44,6 +45,7 @@ function readURL() {
     if (TYPE_PAIRINGS.some((p) => p.id === id)) state.typeId = id;
   }
   state.hybrid = q.get('hybrid') === '1' || h.get('hybrid') === '1';
+  state.view = h.get('view') === 'wall' ? 'wall' : 'sheet';
   const e = parseFloat(h.get('e'));
   if (Number.isFinite(e)) state.entropy = Math.max(0, Math.min(1, e));
   const paper = h.get('paper');
@@ -78,6 +80,7 @@ function writeURL() {
   if (state.source !== 'corpus') h.set('source', state.source);
   if (state.typeId !== 'chance') h.set('type', state.typeId);
   if (state.hybrid) h.set('hybrid', '1');
+  if (state.view === 'wall') h.set('view', 'wall');
   if (Math.abs(state.entropy - 0.5) > 0.004) h.set('e', state.entropy.toFixed(2));
   if (state.paperMode !== 'auto') h.set('paper', state.paperMode);
   if (state.source === 'user') {
@@ -130,6 +133,17 @@ async function show(entry, { push = true } = {}) {
     current.svg.querySelector('[data-flatten="1"]') ? '' : 'none';
   markEngineList();
 
+  /* the wall stands in for the sheet when asked; the sheet render above
+   * still feeds the seed box, the history and the gallery */
+  const onWall = state.view === 'wall';
+  holder.hidden = onWall;
+  document.getElementById('wall').hidden = !onWall;
+  document.body.classList.toggle('on-wall', onWall);
+  if (onWall) {
+    renderWall();
+    document.getElementById('colophon').textContent = wallColophon(current.meta);
+  }
+
   if (push) {
     historyList.splice(historyIndex + 1);
     historyList.push({ seed: state.seed, engineId: state.engine });
@@ -171,13 +185,50 @@ function markThumb() {
 }
 
 /* ------------------------------------------------------------------ *
+ * The wall: every engine at this seed, each tile a door to its sheet.
+ * ------------------------------------------------------------------ */
+
+function renderWall() {
+  const wall = document.getElementById('wall');
+  wall.innerHTML = '';
+  for (const e of ENGINES) {
+    const r = renderPoem({
+      seed: state.seed, engineId: e.id, source: state.source, userText: state.userText,
+      entropy: state.entropy, paperMode: state.paperMode, typeId: state.typeId, hybrid: state.hybrid,
+    });
+    const fig = document.createElement('figure');
+    fig.className = 'tile';
+    fig.dataset.engine = e.id;
+    fig.appendChild(r.svg);
+    const cap = document.createElement('figcaption');
+    cap.textContent = e.name;
+    cap.dataset.colophon = r.meta.colophon; // printed as the page's foot
+    fig.appendChild(cap);
+    fig.addEventListener('click', () => {
+      state.engine = e.id;
+      state.view = 'sheet';
+      show({ seed: state.seed, engineId: e.id });
+    });
+    wall.appendChild(fig);
+  }
+}
+
+/** The wall's colophon, built from the sheet's: number, seed, the count, the faces. */
+function wallColophon(meta) {
+  const parts = meta.colophon.split(' · ');
+  const setIn = parts.find((p) => /^(set in|meant for)/.test(p)) || '';
+  return [parts[0], 'the wall', `seed ${meta.seed}`, `${ENGINES.length === 25 ? 'twenty-five' : ENGINES.length} engines`, setIn, parts[parts.length - 1]]
+    .filter(Boolean).join(' · ');
+}
+
+/* ------------------------------------------------------------------ *
  * Controls.
  * ------------------------------------------------------------------ */
 
 function buildEngineList() {
   const list = document.getElementById('engine-list');
   list.innerHTML = '';
-  const mk = (id, name, lineage) => {
+  const mk = (id, name, lineage, onClick = null) => {
     const btn = document.createElement('button');
     btn.className = 'engine-item';
     btn.dataset.engine = id || '';
@@ -190,19 +241,32 @@ function buildEngineList() {
       ln.textContent = lineage;
       btn.appendChild(ln);
     }
-    btn.addEventListener('click', () => {
+    btn.addEventListener('click', onClick || (() => {
       state.engine = id;
       show({ seed: state.seed, engineId: id });
-    });
+    }));
     list.appendChild(btn);
   };
-  mk(null, 'chance', 'the dice pick the engine');
-  for (const e of ENGINES) mk(e.id, e.name, e.lineage);
+  mk(null, 'chance', 'the dice pick the engine', () => {
+    state.engine = null;
+    show({ seed: state.seed, engineId: null });
+  });
+  for (const e of ENGINES) mk(e.id, e.name, e.lineage, () => {
+    state.engine = e.id;
+    state.view = 'sheet';
+    show({ seed: state.seed, engineId: e.id });
+  });
+  mk('__wall', 'the wall', 'every engine at this seed', () => {
+    state.view = 'wall';
+    show({ seed: state.seed, engineId: state.engine }, { push: false });
+  });
 }
 
 function markEngineList() {
+  const onWall = state.view === 'wall';
   document.querySelectorAll('.engine-item').forEach((btn) => {
-    btn.classList.toggle('active', (btn.dataset.engine || null) === (state.engine || null));
+    const id = btn.dataset.engine || null;
+    btn.classList.toggle('active', onWall ? id === '__wall' : id === (state.engine || null));
   });
 }
 
@@ -319,6 +383,10 @@ function wire() {
     if (e.key === 'r' || e.key === 'R') reroll();
     else if (e.key === 'e' || e.key === 'E') cycleEngine(1);
     else if (e.key === 's' || e.key === 'S') downloadSVG(current.svg, current.meta);
+    else if (e.key === 'w' || e.key === 'W') {
+      state.view = state.view === 'wall' ? 'sheet' : 'wall';
+      show({ seed: state.seed, engineId: state.engine }, { push: false });
+    }
     else if (e.key === 'ArrowLeft') stepHistory(-1);
     else if (e.key === 'ArrowRight') stepHistory(1);
     else return;

@@ -27,7 +27,8 @@ Chrome, Edge and Safari refuse over `file://`. Opening `index.html` straight
 from disk shows the rail with an empty engine list and a notice saying so.
 
 **Keys**: `R` re-roll · `E` cycle engine · `S` export SVG · `←`/`→` walk
-session history. The seed lives in the URL hash; `?engine=diagram` forces
+session history · `W` the wall. The wall shows all twenty-five engines at
+the current seed and settings; click a tile to open that sheet. The seed lives in the URL hash; `?engine=diagram` forces
 an engine, `?hybrid=1` forces crossbreed mode. The hash also carries the
 entropy (`e`), the paper (`paper`) and, for your own words, the text
 itself (`text`, up to 4,000 characters), so a link reproduces the sheet
